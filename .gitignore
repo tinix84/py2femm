@@ -205,3 +205,10 @@ cython_debug/
 .femm
 .lua
 .csv
+# py2femm client/agent architecture additions
+*.pyc
+*.fem
+*.ans
+.venv/
+config/default.yml
+!config/defaults.yml
