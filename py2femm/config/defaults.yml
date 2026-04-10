@@ -1,0 +1,18 @@
+agent:
+  mode: auto
+  url: http://localhost:8082
+  workspace: /mnt/c/femm_workspace
+
+femm:
+  path: ""
+  timeout: 300
+  headless: true
+
+cache:
+  enabled: true
+  dir: ~/.py2femm/cache
+  max_size_gb: 5
+
+results:
+  format: csv
+  dir: ./results

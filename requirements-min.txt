@@ -1,0 +1,17 @@
+# Minimal dependencies for py2femm library + REST server.
+# Does NOT include ML/optimization deps used only by examples/
+# (torch, pymoo, matplotlib, scipy are NOT needed for core py2femm).
+#
+# Versions unpinned to match whatever Python version the target env uses.
+
+numpy
+ezdxf
+pydantic
+fastapi
+uvicorn
+pandas
+
+# Distributed executor dependencies (imported at module load in executor.py,
+# so required even for local runs unless you refactor that import).
+patio
+patio-rabbitmq

@@ -1,0 +1,8 @@
+# Heavy optional dependencies, only needed to run the examples under
+# examples/magnetics/*/optimisation/ (NSGA-II + torch-based ML surrogates).
+# Skip this file unless you plan to run those example scripts.
+
+matplotlib
+scipy
+pymoo
+torch
