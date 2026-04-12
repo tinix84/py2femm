@@ -1,8 +1,6 @@
 """Tests for the optimizer's Lua generation — no FEMM needed."""
 
-from heatsink_optimize import (
-    OptimConfig, ChipConfig, HeatsinkConfig, build_model,
-)
+from heatsink_optimize import ChipConfig, HeatsinkConfig, OptimConfig, build_model
 
 
 def test_build_model_produces_valid_lua():
