@@ -73,3 +73,35 @@ def test_executor_read_result_missing_file(tmp_path):
     job_dir.mkdir(parents=True)
     csv_data = executor.read_result(job_dir)
     assert csv_data is None
+
+
+def test_executor_result_has_sentinel():
+    """Verify the sentinel constant is defined."""
+    from py2femm_server.executor import SENTINEL
+    assert SENTINEL == "PY2FEMM_DONE"
+
+
+def test_executor_has_sentinel_checks_correctly(tmp_path):
+    """has_sentinel() returns True only when sentinel is in the file."""
+    femm_exe = tmp_path / "femm.exe"
+    femm_exe.touch()
+    executor = FemmExecutor(femm_path=femm_exe, workspace=tmp_path / "jobs")
+
+    job_dir = tmp_path / "jobs" / "test_sentinel"
+    job_dir.mkdir(parents=True)
+    result_path = job_dir / "results.csv"
+
+    # No file yet
+    assert executor.has_sentinel(job_dir) is False
+
+    # Empty file
+    result_path.write_text("")
+    assert executor.has_sentinel(job_dir) is False
+
+    # Partial data, no sentinel
+    result_path.write_text("T_A_K = 350.5\n")
+    assert executor.has_sentinel(job_dir) is False
+
+    # With sentinel
+    result_path.write_text("T_A_K = 350.5\nPY2FEMM_DONE\n")
+    assert executor.has_sentinel(job_dir) is True

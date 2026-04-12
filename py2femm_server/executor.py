@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import time
 import uuid
 from pathlib import Path
 from typing import NamedTuple
@@ -85,6 +86,9 @@ def inject_preamble(lua_script: str, workdir: Path) -> str:
     return preamble + patched
 
 
+SENTINEL = "PY2FEMM_DONE"
+
+
 class FemmExecutor:
     """Runs FEMM as a subprocess on a Lua script."""
 
@@ -104,38 +108,64 @@ class FemmExecutor:
         lua_path.write_text(injected, encoding="utf-8")
         return PreparedJob(job_dir=job_dir, lua_path=lua_path)
 
+    def has_sentinel(self, job_dir: Path) -> bool:
+        """Check if results.csv contains the PY2FEMM_DONE sentinel."""
+        result_path = job_dir / "results.csv"
+        if not result_path.exists():
+            return False
+        try:
+            text = result_path.read_text(encoding="utf-8")
+            return SENTINEL in text
+        except (OSError, UnicodeDecodeError):
+            return False
+
     def run(self, lua_script: str, timeout: int = 300) -> tuple[str | None, int]:
-        """Run a Lua script in FEMM. Returns (csv_data, returncode)."""
+        """Run a Lua script in FEMM. Returns (csv_data, returncode).
+
+        Uses file-polling instead of proc.communicate() because FEMM's
+        quit() hangs in -windowhide mode. We poll results.csv for the
+        PY2FEMM_DONE sentinel, then kill the process.
+        """
         job_dir, lua_path = self.prepare_job(lua_script)
         lua_path_abs = str(lua_path.resolve())
         cmd = [str(self.femm_path), f"-lua-script={lua_path_abs}"]
         if self.headless:
             cmd.append("-windowhide")
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        try:
-            stdout, stderr = proc.communicate(timeout=timeout)
-            # Write stderr to error.log in job dir for debugging
-            if stderr:
-                (job_dir / "stderr.log").write_bytes(stderr)
-            if stdout:
-                (job_dir / "stdout.log").write_bytes(stdout)
-            csv_data = self.read_result(job_dir)
-            return csv_data, proc.returncode
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            proc.communicate()
-            # FEMM's quit() often hangs — check if results were written before the hang
-            csv_data = self.read_result(job_dir)
-            if csv_data:
+
+        deadline = time.time() + timeout
+        poll_interval = 0.5
+
+        while time.time() < deadline:
+            time.sleep(poll_interval)
+
+            # Check if results file has the sentinel (all writes flushed)
+            if self.has_sentinel(job_dir):
+                csv_data = self.read_result(job_dir)
+                proc.kill()
+                proc.wait()
                 return csv_data, 0
-            return None, -1
+
+            # Check if process exited on its own
+            if proc.poll() is not None:
+                csv_data = self.read_result(job_dir)
+                return csv_data, proc.returncode
+
+        # Timeout — kill and try to salvage
+        proc.kill()
+        proc.wait()
+        csv_data = self.read_result(job_dir)
+        if csv_data and csv_data.strip():
+            return csv_data, 0
+        return None, -1
 
     def read_result(self, job_dir: Path) -> str | None:
         """Read the results.csv from a job directory."""
         result_path = job_dir / "results.csv"
         if not result_path.exists():
             return None
-        return result_path.read_text(encoding="utf-8")
+        text = result_path.read_text(encoding="utf-8")
+        return text if text else None
 
     def read_error_log(self, job_dir: Path) -> str | None:
         """Read any error logs from a job directory."""
