@@ -247,14 +247,31 @@ def build_femm_problem(nodes: list[Node], geo: Geometry) -> FemmProblem:
 
     # Analysis + post-processing
     problem.make_analysis("planar")
-    problem.get_point_values(Node(BASE_W / 2, 0))
-    problem.get_point_values(Node(BASE_W / 2, BASE_H / 2))
-    problem.get_point_values(Node(FIN_W / 2, BASE_H + FIN_H))
 
+    # Point values via raw Lua (get_point_values only supports magnetic field)
+    contact_cx = (CX0 + CX1) / 2
+    fin_tip_x = FIN_W / 2
+    fin_tip_y = BASE_H + FIN_H
+
+    problem.lua_script.append(f"T_contact = ho_getpointvalues({contact_cx}, 0)")
+    problem.lua_script.append(f"T_base = ho_getpointvalues({BASE_W / 2}, {BASE_H / 2})")
+    problem.lua_script.append(f"T_fintip = ho_getpointvalues({fin_tip_x}, {fin_tip_y})")
+
+    # Block integral: average temperature
     problem.lua_script.append(f"ho_selectblock({BASE_W / 2}, {BASE_H / 2})")
     problem.lua_script.append("avg_T = ho_blockintegral(0)")
     problem.lua_script.append("ho_clearblock()")
+
+    # Bitmap capture: temperature contour plot
+    # ho_showdensityplot(legend, gscale, type, upper, lower) — type 0 = temperature
+    problem.lua_script.append("ho_showdensityplot(1, 0, 0, T_contact, T_fintip)")
+    problem.lua_script.append('ho_savebitmap("heatsink_temperature.bmp")')
+
+    # Write results to CSV
     problem.lua_script.append('write(file_out, "AverageTemperature_K = ", avg_T, "\\n")')
+    problem.lua_script.append('write(file_out, "T_contact_K = ", T_contact, "\\n")')
+    problem.lua_script.append('write(file_out, "T_base_K = ", T_base, "\\n")')
+    problem.lua_script.append('write(file_out, "T_fintip_K = ", T_fintip, "\\n")')
 
     return problem
 
@@ -386,6 +403,21 @@ def plot_results(nodes: list[Node], avg_T: float, R_th: float):
 
     plt.tight_layout()
     plt.show()
+
+
+def load_femm_bitmap(bmp_path: str):
+    """Load a BMP file saved by FEMM's ho_savebitmap(), return as numpy array.
+
+    Usage in notebooks:
+        img = load_femm_bitmap("path/to/heatsink_temperature.bmp")
+        plt.imshow(img)
+        plt.axis("off")
+        plt.show()
+    """
+    from PIL import Image
+    import numpy as np
+    img = Image.open(bmp_path)
+    return np.array(img)
 
 
 # ---------------------------------------------------------------------------
