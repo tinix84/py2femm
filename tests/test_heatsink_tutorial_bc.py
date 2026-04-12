@@ -1,12 +1,5 @@
 """Regression test: bottom segments at y=0 must NOT get convection BC."""
 
-import sys
-from pathlib import Path
-
-_examples_dir = str(Path(__file__).resolve().parent.parent / "examples" / "heatflow" / "heatsink")
-if _examples_dir not in sys.path:
-    sys.path.insert(0, _examples_dir)
-
 from heatsink_tutorial import build_outline_nodes, build_geometry, build_femm_problem, get_lua_script
 
 
