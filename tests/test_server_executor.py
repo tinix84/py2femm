@@ -105,3 +105,19 @@ def test_executor_has_sentinel_checks_correctly(tmp_path):
     # With sentinel
     result_path.write_text("T_A_K = 350.5\nPY2FEMM_DONE\n")
     assert executor.has_sentinel(job_dir) is True
+
+
+def test_executor_run_reads_sentinel_result(tmp_path):
+    """run() should detect PY2FEMM_DONE sentinel and return CSV data."""
+    femm_exe = tmp_path / "femm.exe"
+    femm_exe.touch()
+    executor = FemmExecutor(femm_path=femm_exe, workspace=tmp_path / "jobs")
+
+    job_dir, lua_path = executor.prepare_job("hi_analyze()")
+    result_csv = job_dir / "results.csv"
+    result_csv.write_text("T_A_K = 350.5\nPY2FEMM_DONE\n")
+
+    csv_data = executor.read_result(job_dir)
+    assert csv_data is not None
+    assert "T_A_K = 350.5" in csv_data
+    assert "PY2FEMM_DONE" in csv_data

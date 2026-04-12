@@ -131,7 +131,7 @@ class FemmExecutor:
         cmd = [str(self.femm_path), f"-lua-script={lua_path_abs}"]
         if self.headless:
             cmd.append("-windowhide")
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
         deadline = time.time() + timeout
         poll_interval = 0.5
