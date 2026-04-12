@@ -91,56 +91,48 @@ class FemmProblem:
 
     def init_problem(self, out_file="femm_data.csv", elements=False):
         """
-        This commands initialize a femm console and flush the variables
+        Initialize a FEMM console: create document, open output files.
         :param out_file: defines the default output file
         """
         self.out_file = str(Path(out_file).resolve().as_posix())
         cmd_list = []
-        cmd_list.append(f'remove("{out_file}")')  # get rid of the old data file, if it exists
+        cmd_list.append(f'remove("{out_file}")')
 
-        if self.field == FemmFields.MAGNETIC:
-            cmd_list.append("newdocument(0)")  # the 0 specifies a magnetics problem
-        if self.field == FemmFields.ELECTROSTATIC:
-            cmd_list.append("newdocument(1)")  # the 1 specifies electrostatics problem
-        if self.field == FemmFields.HEAT_FLOW:
-            cmd_list.append("newdocument(2)")  # the 2 specifies heat flow problem
-        if self.field == FemmFields.CURRENT_FLOW:
-            cmd_list.append("newdocument(3)")  # the 3 specifies current flow problem
+        doc_types = {
+            FemmFields.MAGNETIC: 0,
+            FemmFields.ELECTROSTATIC: 1,
+            FemmFields.HEAT_FLOW: 2,
+            FemmFields.CURRENT_FLOW: 3,
+        }
+        cmd_list.append(f"newdocument({doc_types[self.field]})")
 
-        # user specified output
-        cmd = Template('file_out = openfile("$outfile", "w")')
-        cmd = cmd.substitute(outfile=out_file)
-        cmd_list.append(cmd)
+        cmd_list.append(f'file_out = openfile("{out_file}", "w")')
 
         if elements:
-            # mesh output
             cmd_list.append(f'mesh_file = openfile("{self.mesh_file}", "w")')
-
-            # node output
             cmd_list.append(f'node_file = openfile("{self.node_file}", "w")')
 
-        self.lua_script.extend(cmd_list)
-
-        # point values
         cmd_list.append(f'point_values = openfile("{self.point_values}", "w")')
-        self.lua_script.extend(cmd_list)
-        cmd = f"write(point_values, \"x, y, A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph, \\n\")"
-        cmd_list.append(cmd)
-        self.lua_script.extend(cmd_list)
+        cmd_list.append(
+            f'write(point_values, "x, y, A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph, \\n")'
+        )
 
-
+        self.lua_script.extend(cmd_list)
         return cmd_list
 
     def close(self, elements=False):
 
         cmd_list = []
 
-        if elements:
-            cmd_list.append("closefile(file_out)")
+        # Sentinel marker — signals the executor that all writes are complete
+        cmd_list.append('write(file_out, "PY2FEMM_DONE\\n")')
 
-            #if self.post_processing_activated:
+        # Always flush the output file handle before closing
+        cmd_list.append("closefile(file_out)")
+        cmd_list.append("closefile(point_values)")
+
+        if elements:
             cmd_list.append("closefile(mesh_file)")
-            cmd_list.append("closefile(point_values)")
 
         cmd_list.append(f"{self.field.output_to_string()}_close()")
         cmd_list.append(f"{self.field.input_to_string()}_close()")

@@ -867,3 +867,20 @@ class FemmTester(TestCase):
         solution_vector = np.array([[-1.0, 1.0, 0.0], [-1.0, 0.0, 1.0]])
 
         np.testing.assert_allclose(grad, solution_vector)
+
+
+def test_close_emits_sentinel():
+    """close() must write PY2FEMM_DONE to file_out before quit()."""
+    problem = FemmProblem(out_file="test.csv")
+    problem.heat_problem(
+        units=LengthUnit.MILLIMETERS, type="planar",
+        precision=1e-8, depth=100, minangle=30,
+    )
+    problem.close()
+    script = "\n".join(problem.lua_script)
+    # Sentinel must appear before closefile and quit
+    assert 'write(file_out, "PY2FEMM_DONE\\n")' in script
+    sentinel_idx = script.index("PY2FEMM_DONE")
+    close_idx = script.index("closefile(file_out)")
+    quit_idx = script.index("quit()")
+    assert sentinel_idx < close_idx < quit_idx
