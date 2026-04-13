@@ -9,6 +9,8 @@ copyright: Copyright &copy; 2024-2026 Riccardo Tinivella. Licensed under AGPL-3.
 
 theme:
   name: material
+  logo: assets/logo.png
+  favicon: assets/logo.png
   palette:
     - scheme: default
       primary: indigo

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="py2femm logo" width="280">
+</p>
+
 # py2femm
 
 **Python automation platform for FEMM finite element simulations.**
