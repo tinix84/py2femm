@@ -380,7 +380,7 @@ def plot_sensitivity(df: pd.DataFrame, param_name: str, ax=None):
     sub = df[mask].sort_values(param_name)
 
     if sub.empty:
-        return
+        return None
 
     if ax is None:
         _, ax = plt.subplots(figsize=(6, 4))
@@ -400,6 +400,7 @@ def plot_sensitivity(df: pd.DataFrame, param_name: str, ax=None):
 
     ax.set_title(f"Sensitivity: {param_name}")
     ax.grid(True, alpha=0.3)
+    return ax
 
 
 def plot_heatmap(df: pd.DataFrame, x_param: str = "pitch_ratio",
@@ -411,6 +412,9 @@ def plot_heatmap(df: pd.DataFrame, x_param: str = "pitch_ratio",
     Grey cells indicate invalid/missing combinations.
     """
     import matplotlib.pyplot as plt
+
+    if df.empty:
+        return None
 
     if L_values is None:
         L_values = [12.0, 20.0, 32.0, 40.0]
@@ -518,7 +522,7 @@ def plot_contact_comparison(results: dict[str, pd.DataFrame]):
     ax.set_xlabel("Configuration #")
     ax.set_ylabel("R_th [K/W]")
     ax.set_title("Contact Mode Comparison (top-N configs)")
-    ax.set_xticks(x + width)
+    ax.set_xticks(x + width * (len(modes) - 1) / 2)
     ax.set_xticklabels([f"#{i+1}" for i in range(n_configs)])
     ax.legend()
     ax.grid(axis="y", alpha=0.3)
