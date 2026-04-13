@@ -1,0 +1,75 @@
+site_name: py2femm
+site_description: Python automation platform for FEMM finite element simulations
+site_url: https://tinix84.github.io/py2femm/
+repo_name: tinix84/py2femm
+repo_url: https://github.com/tinix84/py2femm
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024-2026 Riccardo Tinivella. Licensed under AGPL-3.0-or-later.
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+    - Server Setup: getting-started/server.md
+  - User Guide:
+    - FemmProblem API: guide/femm-problem.md
+    - Geometry: guide/geometry.md
+    - Materials & Boundaries: guide/materials-boundaries.md
+    - Client Modes: guide/client.md
+    - Parametric Studies: guide/parametric.md
+  - Examples:
+    - Heat Sink Tutorial: examples/heatsink-baseline.md
+    - Heat Sink Parametric: examples/heatsink-parametric.md
+    - Chip Placement Optimization: examples/optimization.md
+    - All Examples: examples/index.md
+  - Reference:
+    - FEMM Lua Reference: femm_lua_reference.md
+    - FEMM Physics Reference: femm_physics_reference.md
+    - py2femm Analysis: py2femm_analysis.md
+    - About: about.md
+  - Architecture: architecture.md
+  - PRD: prd.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tinix84/py2femm

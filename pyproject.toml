@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-agent = [
+server = [
     "fastapi>=0.100",
     "uvicorn[standard]>=0.20",
 ]
@@ -29,13 +29,18 @@ dev = [
     "ruff>=0.1",
     "httpx>=0.24",
 ]
-all = ["py2femm[agent,dev]"]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.4",
+    "pymdown-extensions>=10.0",
+]
+all = ["py2femm[server,dev,docs]"]
 
 [project.scripts]
 py2femm = "py2femm.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["py2femm*", "py2femm_agent*"]
+include = ["py2femm*", "py2femm_server*"]
 
 [tool.ruff]
 target-version = "py310"
