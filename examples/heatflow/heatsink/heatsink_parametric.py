@@ -14,6 +14,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import product
 
+import pandas as pd
+
+from py2femm.client import FemmClient
 from py2femm.femm_problem import FemmProblem
 from py2femm.general import LengthUnit
 from py2femm.geometry import Geometry, Line, Node
@@ -258,3 +261,90 @@ def build_femm_problem(cfg: HeatsinkConfig) -> str:
 
     problem.close()
     return "\n".join(problem.lua_script)
+
+
+# ---------------------------------------------------------------------------
+# Result parsing (shared pattern with heatsink_tutorial.py)
+# ---------------------------------------------------------------------------
+
+def parse_results(raw_csv: str) -> dict:
+    """Parse key=value pairs from CSV output."""
+    results = {}
+    for line in raw_csv.strip().splitlines():
+        line = line.strip()
+        if not line or "=" not in line or line.startswith("x,"):
+            continue
+        key, _, val = line.partition("=")
+        key = key.strip()
+        val = val.strip().rstrip(",")
+        try:
+            results[key] = float(val)
+        except ValueError:
+            results[key] = val
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Sweep engine
+# ---------------------------------------------------------------------------
+
+def run_sweep(configs: list[HeatsinkConfig], client: FemmClient,
+              timeout: int = 120) -> pd.DataFrame:
+    """Run all configs via FEMM, return DataFrame with params + metrics.
+
+    Each row contains the config parameters and extracted FEMM results:
+    base_width, pitch_ratio, duty_cycle, base_ratio, n_fins, fin_width, gap,
+    base_height, fin_height, T_avg, T_max, T_min, R_th, A_cross, R_th_per_area.
+    """
+    rows = []
+    total = len(configs)
+
+    for idx, cfg in enumerate(configs):
+        pr = cfg.pitch_actual / cfg.base_width  # pitch ratio for display
+        print(
+            f"[{idx + 1}/{total}] L={cfg.base_width:.0f}mm, "
+            f"pitch/L={pr:.2f}, D={cfg.duty_cycle:.2f}, "
+            f"r_b={cfg.base_ratio:.2f}",
+            end=" ",
+        )
+
+        lua = build_femm_problem(cfg)
+        result = client.run(lua, timeout=timeout)
+
+        if result.error or not result.csv_data:
+            print(f"FAILED: {result.error}")
+            continue
+
+        parsed = parse_results(result.csv_data)
+        T_avg = parsed.get("AverageTemperature_K")
+        T_max = parsed.get("T_max_K")
+        T_min = parsed.get("T_min_K")
+
+        if T_avg is None:
+            print("FAILED: no T_avg in output")
+            continue
+
+        R_th = (T_avg - T_AMB) / P
+        A_cross = cfg.cross_section_area
+
+        row = {
+            "base_width": cfg.base_width,
+            "pitch_ratio": pr,
+            "duty_cycle": cfg.duty_cycle,
+            "base_ratio": cfg.base_ratio,
+            "n_fins": cfg.n_fins,
+            "fin_width": cfg.fin_width,
+            "gap": cfg.gap,
+            "base_height": cfg.base_height,
+            "fin_height": cfg.fin_height,
+            "T_avg": T_avg,
+            "T_max": T_max,
+            "T_min": T_min,
+            "R_th": R_th,
+            "A_cross": A_cross,
+            "R_th_per_area": R_th / A_cross if A_cross > 0 else float("inf"),
+        }
+        rows.append(row)
+        print(f"-> R_th={R_th:.2f} K/W")
+
+    return pd.DataFrame(rows)
