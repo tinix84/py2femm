@@ -26,6 +26,13 @@ class TestHeatsinkConfig:
         assert cfg.n_fins == 3
         assert abs(cfg.n_fins * cfg.pitch_actual - 40.0) < 1e-10
 
+    def test_cross_section_area(self):
+        """A_cross = L * H_b + n * w_f * H_f."""
+        cfg = HeatsinkConfig(base_width=40.0, pitch=10.0, duty_cycle=0.25, base_ratio=0.25)
+        # n=4, p=10, w_f=2.5, g=7.5, H_b=6.25, H_f=18.75
+        # A = 40*6.25 + 4*2.5*18.75 = 250 + 187.5 = 437.5
+        assert cfg.cross_section_area == 437.5
+
 
 class TestIsValid:
     def test_valid_config(self):
