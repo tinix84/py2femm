@@ -306,6 +306,7 @@ def run_sweep(configs: list[HeatsinkConfig], client: FemmClient,
             f"pitch/L={pr:.2f}, D={cfg.duty_cycle:.2f}, "
             f"r_b={cfg.base_ratio:.2f}",
             end=" ",
+            flush=True,
         )
 
         lua = build_femm_problem(cfg)
