@@ -75,3 +75,76 @@ class TestBuildSweepGrid:
         L_values = {cfg.base_width for cfg in configs}
         # Small L values (4, 8) may have 0 valid configs, that's OK
         assert len(L_values) >= 6, f"Only {len(L_values)} distinct L values"
+
+
+from heatsink_parametric import build_femm_problem
+
+
+class TestBuildFemmProblem:
+    def test_produces_valid_lua(self):
+        """Lua script has required commands and no table indexing."""
+        cfg = HeatsinkConfig(base_width=40.0, pitch=10.0, duty_cycle=0.25, base_ratio=0.25)
+        lua = build_femm_problem(cfg)
+
+        # Must be heat flow problem
+        assert "hi_probdef" in lua
+        assert '"millimeters"' in lua
+        assert '"planar"' in lua
+
+        # Must have geometry
+        assert "hi_addnode" in lua
+        assert "hi_addsegment" in lua
+
+        # Must have material
+        assert "Aluminum" in lua
+
+        # Must extract T_avg, T_max, T_min
+        assert "ho_blockintegral(0)" in lua
+        assert "ho_getpointvalues" in lua
+        assert "AverageTemperature_K" in lua
+        assert "T_max_K" in lua
+        assert "T_min_K" in lua
+
+        # Must end with quit()
+        assert lua.strip().splitlines()[-1].strip() == "quit()"
+
+        # No table indexing (FEMM Lua 4.0)
+        assert "[1]" not in lua
+
+    def test_contact_patch_centered(self):
+        """Contact patch nodes should be centered on base bottom."""
+        cfg = HeatsinkConfig(base_width=40.0, pitch=10.0, duty_cycle=0.25, base_ratio=0.25)
+        lua = build_femm_problem(cfg)
+
+        # Contact patch: centered at L/2=20, width=4 → cx0=18, cx1=22
+        assert "hi_addnode(18.0, 0)" in lua
+        assert "hi_addnode(22.0, 0)" in lua
+
+    def test_bottom_segments_insulated(self):
+        """No convection BC on bottom segments (y=0, non-contact)."""
+        cfg = HeatsinkConfig(base_width=40.0, pitch=10.0, duty_cycle=0.25, base_ratio=0.25)
+        lua = build_femm_problem(cfg)
+
+        select_calls = [l for l in lua.splitlines() if "hi_selectsegment" in l]
+        y0_selects = []
+        for call in select_calls:
+            inner = call.split("(")[1].split(")")[0]
+            parts = inner.split(",")
+            y_val = float(parts[1].strip())
+            if abs(y_val) < 1e-6:
+                y0_selects.append(call)
+
+        # Only the contact patch midpoint should be selected at y=0
+        assert len(y0_selects) == 1, f"Expected 1, got {len(y0_selects)}: {y0_selects}"
+
+    def test_correct_number_of_fins(self):
+        """Geometry should have correct fin nodes."""
+        cfg = HeatsinkConfig(base_width=40.0, pitch=20.0, duty_cycle=0.5, base_ratio=0.25)
+        # n=2, p=20, w_f=10, g=10, H_b=6.25, H_f=18.75, H_total=25
+        lua = build_femm_problem(cfg)
+
+        # Fin top nodes at y = H_b + H_f = 25.0
+        fin_top_nodes = [l for l in lua.splitlines()
+                         if "hi_addnode" in l and ", 25.0)" in l]
+        # 2 fins × 2 top corners each = 4 nodes at y=25
+        assert len(fin_top_nodes) == 4, f"Expected 4 fin top nodes, got {len(fin_top_nodes)}"
