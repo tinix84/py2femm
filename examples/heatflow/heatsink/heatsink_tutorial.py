@@ -248,7 +248,7 @@ def build_femm_problem(nodes: list[Node], geo: Geometry) -> FemmProblem:
     # Analysis + post-processing
     problem.make_analysis("planar")
 
-    # Point values via raw Lua (get_point_values only supports magnetic field)
+    # Point values via raw Lua (get_point_values does not support heat flow)
     contact_cx = (CX0 + CX1) / 2
     fin_tip_x = FIN_W / 2
     fin_tip_y = BASE_H + FIN_H
@@ -405,7 +405,7 @@ def plot_results(nodes: list[Node], avg_T: float, R_th: float):
     plt.show()
 
 
-def load_femm_bitmap(bmp_path: str):
+def load_femm_bitmap(bmp_path: str) -> "np.ndarray":
     """Load a BMP file saved by FEMM's ho_savebitmap(), return as numpy array.
 
     Usage in notebooks:
