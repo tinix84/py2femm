@@ -14,6 +14,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import product
 
+import numpy as np
 import pandas as pd
 
 from py2femm.client import FemmClient
@@ -349,3 +350,204 @@ def run_sweep(configs: list[HeatsinkConfig], client: FemmClient,
         print(f"-> R_th={R_th:.2f} K/W")
 
     return pd.DataFrame(rows)
+
+
+# ---------------------------------------------------------------------------
+# Plotting
+# ---------------------------------------------------------------------------
+
+# Nominal values for 1D sensitivity plots
+NOMINAL = {"base_width": 20.0, "pitch_ratio": 0.50, "duty_cycle": 0.25, "base_ratio": 0.25}
+
+
+def plot_sensitivity(df: pd.DataFrame, param_name: str, ax=None):
+    """1D line plot: R_th and A_cross vs one param, others at nominal.
+
+    Parameters
+    ----------
+    df : sweep results DataFrame
+    param_name : one of "base_width", "pitch_ratio", "duty_cycle", "base_ratio"
+    ax : matplotlib Axes (optional, creates new figure if None)
+    """
+    import matplotlib.pyplot as plt
+
+    # Filter to rows where all other params are at nominal
+    mask = pd.Series(True, index=df.index)
+    for k, v in NOMINAL.items():
+        if k == param_name:
+            continue
+        mask &= (df[k] - v).abs() < 1e-6
+    sub = df[mask].sort_values(param_name)
+
+    if sub.empty:
+        return
+
+    if ax is None:
+        _, ax = plt.subplots(figsize=(6, 4))
+
+    color_rth = "tab:red"
+    color_area = "tab:blue"
+
+    ax.plot(sub[param_name], sub["R_th"], "o-", color=color_rth, label="R_th")
+    ax.set_xlabel(param_name)
+    ax.set_ylabel("R_th [K/W]", color=color_rth)
+    ax.tick_params(axis="y", labelcolor=color_rth)
+
+    ax2 = ax.twinx()
+    ax2.plot(sub[param_name], sub["A_cross"], "s--", color=color_area, label="A_cross")
+    ax2.set_ylabel("A_cross [mm^2]", color=color_area)
+    ax2.tick_params(axis="y", labelcolor=color_area)
+
+    ax.set_title(f"Sensitivity: {param_name}")
+    ax.grid(True, alpha=0.3)
+
+
+def plot_heatmap(df: pd.DataFrame, x_param: str = "pitch_ratio",
+                 y_param: str = "duty_cycle", L_values: list[float] | None = None,
+                 rb_values: list[float] | None = None):
+    """2D heatmap: R_th over (x_param vs y_param).
+
+    Rows = base_ratio values, Cols = representative L values.
+    Grey cells indicate invalid/missing combinations.
+    """
+    import matplotlib.pyplot as plt
+
+    if L_values is None:
+        L_values = [12.0, 20.0, 32.0, 40.0]
+    if rb_values is None:
+        rb_values = sorted(df["base_ratio"].unique())
+
+    fig, axes = plt.subplots(
+        len(rb_values), len(L_values),
+        figsize=(4 * len(L_values), 3 * len(rb_values)),
+        squeeze=False,
+    )
+
+    vmin = df["R_th"].min()
+    vmax = df["R_th"].max()
+    im = None
+
+    for row, rb in enumerate(rb_values):
+        for col, L in enumerate(L_values):
+            ax = axes[row, col]
+            sub = df[((df["base_ratio"] - rb).abs() < 1e-6)
+                     & ((df["base_width"] - L).abs() < 1e-6)]
+
+            if sub.empty:
+                ax.set_facecolor("lightgrey")
+                ax.text(0.5, 0.5, "No valid\nconfigs", ha="center", va="center",
+                        transform=ax.transAxes, fontsize=9, color="grey")
+            else:
+                pivot = sub.pivot_table(
+                    values="R_th", index=y_param, columns=x_param, aggfunc="mean",
+                )
+                im = ax.imshow(
+                    pivot.values, aspect="auto", cmap="viridis_r",
+                    vmin=vmin, vmax=vmax, origin="lower",
+                )
+                ax.set_xticks(range(len(pivot.columns)))
+                ax.set_xticklabels([f"{v:.2f}" for v in pivot.columns], fontsize=7)
+                ax.set_yticks(range(len(pivot.index)))
+                ax.set_yticklabels([f"{v:.2f}" for v in pivot.index], fontsize=7)
+
+            if row == len(rb_values) - 1:
+                ax.set_xlabel(x_param)
+            if col == 0:
+                ax.set_ylabel(y_param)
+            ax.set_title(f"L={L:.0f}, r_b={rb:.2f}", fontsize=9)
+
+    fig.suptitle("R_th Heatmaps (pitch/L vs D)", fontsize=13)
+    if im is not None:
+        fig.colorbar(im, ax=axes, label="R_th [K/W]", shrink=0.6)
+    plt.tight_layout()
+    return fig
+
+
+def plot_scaling(df: pd.DataFrame):
+    """R_th and A_cross vs L at best config per L."""
+    import matplotlib.pyplot as plt
+
+    best_per_L = df.loc[df.groupby("base_width")["R_th"].idxmin()]
+    best_per_L = best_per_L.sort_values("base_width")
+
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+
+    ax1.plot(best_per_L["base_width"], best_per_L["R_th"], "ro-", markersize=8, label="R_th")
+    ax1.set_xlabel("Base width L [mm]")
+    ax1.set_ylabel("R_th [K/W]", color="tab:red")
+    ax1.tick_params(axis="y", labelcolor="tab:red")
+
+    ax2 = ax1.twinx()
+    ax2.plot(best_per_L["base_width"], best_per_L["A_cross"], "bs--", markersize=8, label="A_cross")
+    ax2.set_ylabel("A_cross [mm^2]", color="tab:blue")
+    ax2.tick_params(axis="y", labelcolor="tab:blue")
+
+    ax1.set_title("Scaling: Best R_th per Base Width")
+    ax1.grid(True, alpha=0.3)
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+
+    plt.tight_layout()
+    return fig
+
+
+def plot_contact_comparison(results: dict[str, pd.DataFrame]):
+    """Side-by-side bar chart comparing contact alignment modes.
+
+    Parameters
+    ----------
+    results : dict mapping mode name ("centered", "single_fin", "between_fins")
+              to DataFrame with column "R_th" (matched by row order).
+    """
+    import matplotlib.pyplot as plt
+
+    modes = list(results.keys())
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    first_df = results[modes[0]]
+    n_configs = len(first_df)
+    x = np.arange(n_configs)
+    width = 0.25
+
+    for i, mode in enumerate(modes):
+        df_mode = results[mode]
+        ax.bar(x + i * width, df_mode["R_th"].values, width, label=mode)
+
+    ax.set_xlabel("Configuration #")
+    ax.set_ylabel("R_th [K/W]")
+    ax.set_title("Contact Mode Comparison (top-N configs)")
+    ax.set_xticks(x + width)
+    ax.set_xticklabels([f"#{i+1}" for i in range(n_configs)])
+    ax.legend()
+    ax.grid(axis="y", alpha=0.3)
+
+    plt.tight_layout()
+    return fig
+
+
+def plot_geometry_overlay(configs: list[HeatsinkConfig], labels: list[str] | None = None):
+    """Overlay cross-sections of multiple configs with different colors."""
+    import matplotlib.pyplot as plt
+
+    colors = plt.cm.tab10.colors
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    for idx, cfg in enumerate(configs):
+        nodes = _build_outline_nodes(cfg)
+        xs = [n.x for n in nodes] + [nodes[0].x]
+        ys = [n.y for n in nodes] + [nodes[0].y]
+        color = colors[idx % len(colors)]
+        lbl = labels[idx] if labels else f"Config {idx+1}"
+        ax.plot(xs, ys, "-", color=color, linewidth=1.5, label=lbl)
+        ax.fill(xs, ys, alpha=0.08, color=color)
+
+    ax.set_xlabel("x [mm]")
+    ax.set_ylabel("y [mm]")
+    ax.set_title("Geometry Overlay - Top Configurations")
+    ax.set_aspect("equal")
+    ax.legend(loc="upper right", fontsize=8)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    return fig
