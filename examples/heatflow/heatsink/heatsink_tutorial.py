@@ -10,7 +10,6 @@ Complete py2femm workflow:
   6. Submit to FEMM via py2femm server
   7. Parse and validate results
   8. Plot temperature summary
-  9. Parametric study: sweep fin count (3, 5, 7, 9)
 
 Usage:
     # With server already running:
@@ -24,6 +23,8 @@ Usage:
 
     # Skip plots (CI / headless):
     python examples/heatflow/heatsink/heatsink_tutorial.py --no-plot
+
+See heatsink_parametric.py for parametric studies over fin geometry.
 
 Translated from the FEMM heat flow tutorial video:
 https://www.youtube.com/watch?v=1I1mQAT1Kts
@@ -421,125 +422,6 @@ def load_femm_bitmap(bmp_path: str) -> "np.ndarray":
 
 
 # ---------------------------------------------------------------------------
-# 9. Parametric study
-# ---------------------------------------------------------------------------
-
-def build_parametric(n_fins_param: int) -> str:
-    """Build a heat sink with n_fins_param fins, return Lua script."""
-    prob = FemmProblem(out_file="heatsink_data.csv")
-    prob.heat_problem(units=LengthUnit.MILLIMETERS, type="planar",
-                      precision=1e-8, depth=DEPTH, minangle=30)
-
-    gap_p = (BASE_W - n_fins_param * FIN_W) / max(n_fins_param - 1, 1)
-    ns = [Node(0, 0), Node(CX0, 0), Node(CX1, 0), Node(BASE_W, 0), Node(BASE_W, BASE_H)]
-    for i in range(n_fins_param - 1, -1, -1):
-        xl = i * (FIN_W + gap_p)
-        xr = xl + FIN_W
-        ns.extend([Node(xr, BASE_H), Node(xr, BASE_H + FIN_H),
-                    Node(xl, BASE_H + FIN_H), Node(xl, BASE_H)])
-
-    dd = [ns[0]]
-    for n in ns[1:]:
-        if abs(n.x - dd[-1].x) > 1e-6 or abs(n.y - dd[-1].y) > 1e-6:
-            dd.append(n)
-    if abs(dd[-1].x - dd[0].x) < 1e-6 and abs(dd[-1].y - dd[0].y) < 1e-6:
-        dd.pop()
-    ns = dd
-
-    g = Geometry()
-    g.nodes = list(ns)
-    g.lines = [Line(ns[i], ns[(i + 1) % len(ns)]) for i in range(len(ns))]
-    prob.create_geometry(g)
-
-    al = HeatFlowMaterial(material_name="Aluminum", kx=200.0, ky=200.0, qv=0.0, kt=0.0)
-    prob.add_material(al)
-    prob.define_block_label(Node(BASE_W / 2, BASE_H / 2), al)
-
-    hs = HeatFlowHeatFlux(name="HeatSource", qs=-QS)
-    hs.Tset = 0; hs.Tinf = 0; hs.h = 0; hs.beta = 0
-    prob.add_boundary(hs)
-
-    cv = HeatFlowConvection(name="AirConvection", Tinf=T_AMB, h=H_CONV)
-    cv.Tset = 0; cv.qs = 0; cv.beta = 0
-    prob.add_boundary(cv)
-
-    prob.set_boundary_definition_segment(Line(ns[1], ns[2]).selection_point(), hs, elementsize=1)
-    for i in range(len(ns)):
-        if i == 1:
-            continue  # contact patch already assigned
-        seg = Line(ns[i], ns[(i + 1) % len(ns)])
-        if abs(seg.start_pt.y) < 1e-6 and abs(seg.end_pt.y) < 1e-6:
-            continue  # bottom segment — insulated
-        prob.set_boundary_definition_segment(seg.selection_point(), cv, elementsize=1)
-
-    prob.make_analysis("planar")
-    prob.lua_script.append(f"ho_selectblock({BASE_W / 2}, {BASE_H / 2})")
-    prob.lua_script.append("avg_T = ho_blockintegral(0)")
-    prob.lua_script.append("ho_clearblock()")
-    prob.lua_script.append('write(file_out, "AverageTemperature_K = ", avg_T, "\\n")')
-    prob.close()
-    return "\n".join(prob.lua_script)
-
-
-def run_parametric(do_plot: bool = True):
-    """Sweep fin count and plot results."""
-    print("\n=== 9. Parametric Study ===")
-    client = FemmClient(mode="remote", url="http://localhost:8082")
-    fin_counts = [3, 5, 7, 9]
-    parametric = {}
-
-    for nf in fin_counts:
-        print(f"  {nf} fins...", end=" ")
-        script = build_parametric(nf)
-        res = client.run(script, timeout=120)
-        assert res.error is None, f"{nf}-fin case failed: {res.error}"
-        assert res.csv_data, f"{nf}-fin case returned no CSV data"
-        parsed = parse_results(res.csv_data)
-        assert "AverageTemperature_K" in parsed, (
-            f"{nf}-fin: AverageTemperature_K not in output"
-        )
-        T = parsed["AverageTemperature_K"]
-        parametric[nf] = T
-        print(f"T_avg = {T:.1f} K  (R_th = {(T - T_AMB) / P:.2f} K/W)")
-
-    if do_plot and parametric:
-        plot_parametric(parametric)
-
-
-def plot_parametric(parametric: dict[int, float]):
-    import matplotlib.pyplot as plt
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    fins = sorted(parametric.keys())
-    temps = [parametric[nf] for nf in fins]
-    r_ths = [(T - T_AMB) / P for T in temps]
-
-    ax1.plot(fins, temps, "ro-", markersize=8, linewidth=2)
-    ax1.axhline(T_AMB, color="steelblue", linestyle="--", alpha=0.7,
-                label=f"T_ambient = {T_AMB} K")
-    for nf, T in zip(fins, temps):
-        ax1.annotate(f"{T:.1f} K", (nf, T), textcoords="offset points",
-                     xytext=(0, 10), ha="center", fontsize=9)
-    ax1.set_xlabel("Number of fins")
-    ax1.set_ylabel("Average temperature [K]")
-    ax1.set_title("Temperature vs. Fin Count")
-    ax1.legend()
-    ax1.grid(True, alpha=0.3)
-
-    ax2.bar(fins, r_ths, color="goldenrod", edgecolor="black", width=0.8)
-    for nf, r in zip(fins, r_ths):
-        ax2.text(nf, r + 0.1, f"{r:.2f}", ha="center", fontsize=10, weight="bold")
-    ax2.set_xlabel("Number of fins")
-    ax2.set_ylabel("Thermal resistance [K/W]")
-    ax2.set_title("R_th vs. Fin Count")
-    ax2.grid(axis="y", alpha=0.3)
-
-    plt.suptitle("Parametric Study \u2014 Heat Sink Fin Count", fontsize=13)
-    plt.tight_layout()
-    plt.show()
-
-
-# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -551,8 +433,6 @@ def main():
                         help="Keep FEMM window visible (only with --start-server)")
     parser.add_argument("--no-plot", action="store_true",
                         help="Skip matplotlib plots")
-    parser.add_argument("--no-parametric", action="store_true",
-                        help="Skip parametric sweep")
     args = parser.parse_args()
 
     do_plot = not args.no_plot
@@ -616,10 +496,6 @@ def main():
     if do_plot:
         print("\n=== 7. Plot Results ===")
         plot_results(nodes, avg_T, R_th)
-
-    # 9. Parametric
-    if not args.no_parametric:
-        run_parametric(do_plot=do_plot)
 
     print("\nDone.")
 
