@@ -80,3 +80,61 @@ def test_chip_outside_base_rejected():
     )
     with pytest.raises(ValueError, match="outside"):
         validate_config(cfg)
+
+
+from heatsink_multizone import build_geometry
+
+
+def _make_3zone_2chip_config() -> MultiZoneConfig:
+    """Standard 3-zone 2-chip config for tests."""
+    return MultiZoneConfig(
+        zones=[
+            Zone(x_start=0, x_end=60, material="Aluminum", kx=200, ky=200, h_conv=15),
+            Zone(x_start=60, x_end=100, material="Aluminum", kx=200, ky=200, h_conv=5),
+            Zone(x_start=100, x_end=180, material="Copper", kx=385, ky=385, h_conv=50),
+        ],
+        chips=[
+            Chip(name="ChipA", x_center=30, width=20, power=5.0),
+            Chip(name="ChipB", x_center=140, width=30, power=15.0),
+        ],
+        base_w=180, base_h=10,
+    )
+
+
+def test_geometry_node_count():
+    """3 zones + 2 chips: expect correct node count."""
+    cfg = _make_3zone_2chip_config()
+    geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
+    # Bottom edge nodes: 0, 20, 40, 60, 100, 125, 155, 180 = 8 unique x-values
+    # Top edge nodes: 0, 60, 100, 180 = 4 x-values at y=base_h
+    # Total unique = 8 + 4 = 12
+    assert len(geo.nodes) == 12
+
+
+def test_geometry_internal_partition_count():
+    """3 zones = 2 internal partition lines."""
+    cfg = _make_3zone_2chip_config()
+    geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
+    assert len(internal_lines) == 2
+
+
+def test_geometry_top_segments_count():
+    """3 zones = 3 top segments."""
+    cfg = _make_3zone_2chip_config()
+    geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
+    assert len(top_segments) == 3
+
+
+def test_chip_at_zone_boundary_no_duplicate():
+    """Chip edge coinciding with zone boundary should not create duplicate nodes."""
+    cfg = MultiZoneConfig(
+        zones=[
+            Zone(x_start=0, x_end=50, material="Aluminum", kx=200, ky=200, h_conv=25),
+            Zone(x_start=50, x_end=100, material="Aluminum", kx=200, ky=200, h_conv=25),
+        ],
+        chips=[Chip(name="ChipA", x_center=50, width=20, power=5.0)],
+        base_w=100, base_h=10,
+    )
+    geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
+    bottom_xs = sorted(set(round(n.x, 6) for n in bottom_nodes))
+    assert len(bottom_xs) == len(bottom_nodes), "Duplicate bottom nodes detected"
