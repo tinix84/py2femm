@@ -60,8 +60,9 @@ def build_circular(cfg: LiquidCoolerConfig) -> FemmProblem:
     for mat in (mat_al, mat_si, mat_cu):
         problem.add_material(mat)
 
-    # Al block label: bottom-left strip, clear of all channels
-    problem.define_block_label(Node(0.3, 0.2), mat_al)
+    # Al block label: halfway between bottom edge and channel base, clear of all channels
+    al_label_y = (h_cp / 2 - r) * 0.5  # halfway between bottom and channel base
+    problem.define_block_label(Node(cfg.s_t * 0.1, al_label_y), mat_al)
 
     for i, dev in enumerate(cfg.devices):
         xl = i * cfg.device_pitch
@@ -110,8 +111,6 @@ def build_circular(cfg: LiquidCoolerConfig) -> FemmProblem:
     problem.make_analysis("planar")
 
     # Post-processing
-    problem.lua_script.append("ho_reload()")
-
     for i, dev in enumerate(cfg.devices):
         xl = i * cfg.device_pitch
         xc = xl + dev.bp_w / 2
