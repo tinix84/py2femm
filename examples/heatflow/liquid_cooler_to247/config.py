@@ -44,6 +44,10 @@ class LiquidCoolerConfig:
     def n_channels(self) -> int:
         return math.ceil(self.b_cp / self.s_t)
 
+    def __post_init__(self) -> None:
+        if not self.devices:
+            raise ValueError("LiquidCoolerConfig requires at least one device")
+
 
 _WATER_90C = {
     "lam": 0.674,
@@ -54,31 +58,30 @@ _WATER_90C = {
 
 def compute_h(cfg: LiquidCoolerConfig, dh_mm: float | None = None) -> float:
     """Convective coefficient [W/m²K] on channel wall — Waffler eq. 4.145-4.148."""
-    w = _WATER_90C
     dh = (dh_mm if dh_mm is not None else cfg.d_t) * 1e-3
-    l = cfg.l_cp * 1e-3
-    eta = w["eta"]
-    lam = w["lam"]
-    Pr = eta * w["cp"] / lam
+    length = cfg.l_cp * 1e-3
+    eta = _WATER_90C["eta"]
+    lam = _WATER_90C["lam"]
+    Pr = eta * _WATER_90C["cp"] / lam
     Re = 4 * cfg.m_dot / (math.pi * eta * dh)
 
     if Re < 2300:
-        Nu = (3.657**3 + 0.644**3 * (Pr * Re * dh / l) ** 1.5) ** (1 / 3)
-    elif Re > 4000:
+        Nu = (3.657**3 + 0.644**3 * (Pr * Re * dh / length) ** 1.5) ** (1 / 3)
+    elif Re > 10000:
         zeta = 1 / (0.78 * math.log(Re) - 1.5) ** 2
         Nu = (
             zeta / 8 * Re * Pr
             / (1 + 12.7 * math.sqrt(zeta / 8) * (Pr ** (2 / 3) - 1))
-            * (1 + (dh / l) ** (2 / 3))
+            * (1 + (dh / length) ** (2 / 3))
         )
     else:
         gamma = (Re - 2300) / 7700
-        Nu_lam = (3.657**3 + 0.644**3 * (Pr * 2300 * dh / l) ** 1.5) ** (1 / 3)
+        Nu_lam = (3.657**3 + 0.644**3 * (Pr * 2300 * dh / length) ** 1.5) ** (1 / 3)
         zeta_t = 1 / (0.78 * math.log(1e4) - 1.5) ** 2
         Nu_turb = (
             zeta_t / 8 * 1e4 * Pr
             / (1 + 12.7 * math.sqrt(zeta_t / 8) * (Pr ** (2 / 3) - 1))
-            * (1 + (dh / l) ** (2 / 3))
+            * (1 + (dh / length) ** (2 / 3))
         )
         Nu = (1 - gamma) * Nu_lam + gamma * Nu_turb
 

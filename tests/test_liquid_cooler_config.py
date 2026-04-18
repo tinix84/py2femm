@@ -45,9 +45,17 @@ def test_compute_h_waffler_defaults_reasonable_range():
 
 def test_compute_h_custom_dh():
     cfg = default_waffler_config(n_devices=1)
-    h_circ = compute_h(cfg)
-    h_rect = compute_h(cfg, dh_mm=3.0)
+    h_circ = compute_h(cfg)           # d_t=2mm
+    h_rect = compute_h(cfg, dh_mm=3.0)  # wider → lower Re → different h
     assert h_circ != h_rect
+    assert 3_000 < h_rect < 15_000, f"h_rect={h_rect:.0f} W/m²K out of range"
+
+
+def test_compute_h_transition_regime():
+    # dh=3.23mm puts Re in transition zone 2300-10000
+    cfg = default_waffler_config(n_devices=1)
+    h = compute_h(cfg, dh_mm=3.23)
+    assert 3_000 < h < 10_000, f"h={h:.0f} W/m²K out of transition-regime range"
 
 
 def test_waffler_config_geometry_defaults():
