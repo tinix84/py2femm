@@ -5,6 +5,7 @@ from py2femm.general import LengthUnit
 from py2femm.geometry import Geometry, Line, Node
 from py2femm.heatflow import HeatFlowConvection, HeatFlowHeatFlux, HeatFlowMaterial
 
+from ._geometry import add_rect
 from .config import LiquidCoolerConfig, compute_h
 
 
@@ -28,12 +29,12 @@ def build_rectangular(cfg: LiquidCoolerConfig) -> FemmProblem:
     geo = Geometry()
 
     # Cooler outer rectangle
-    _add_rect(geo, 0.0, 0.0, b_cp, h_cp)
+    add_rect(geo, 0.0, 0.0, b_cp, h_cp)
 
     # Rectangular channel voids (no block labels inside)
     channel_xs = [cfg.s_t / 2 + i * cfg.s_t for i in range(cfg.n_channels)]
     for cx in channel_xs:
-        _add_rect(geo, cx - ch_w / 2, cy_ch - ch_h / 2, cx + ch_w / 2, cy_ch + ch_h / 2)
+        add_rect(geo, cx - ch_w / 2, cy_ch - ch_h / 2, cx + ch_w / 2, cy_ch + ch_h / 2)
 
     # Device stacks above cooler
     for i, dev in enumerate(cfg.devices):
@@ -44,9 +45,9 @@ def build_rectangular(cfg: LiquidCoolerConfig) -> FemmProblem:
         y_tt = h_cp + dev.d_tim
         y_ct = y_tt + dev.h_cu
         y_st = y_ct + dev.a_si
-        _add_rect(geo, xl,     h_cp,  xr,     y_tt)
-        _add_rect(geo, xl,     y_tt,  xr,     y_ct)
-        _add_rect(geo, x_si_l, y_ct,  x_si_r, y_st)
+        add_rect(geo, xl,     h_cp,  xr,     y_tt)
+        add_rect(geo, xl,     y_tt,  xr,     y_ct)
+        add_rect(geo, x_si_l, y_ct,  x_si_r, y_st)
 
     problem.create_geometry(geo)
 
@@ -127,17 +128,9 @@ def build_rectangular(cfg: LiquidCoolerConfig) -> FemmProblem:
         problem.lua_script.append(f"T_case_{i} = ho_getpointvalues({xc:.4f}, {y_case:.4f})")
         problem.lua_script.append(f'write(file_out, "T_case_{i} = ", T_case_{i}, "\\n")')
 
-    problem.lua_script.append(f"ho_selectblock({b_cp / 2:.4f}, {al_label_y:.4f})")
+    problem.lua_script.append(f"ho_selectblock({cfg.s_t * 0.1:.4f}, {al_label_y:.4f})")
     problem.lua_script.append("T_h_surface = ho_blockintegral(0)")
     problem.lua_script.append("ho_clearblock()")
     problem.lua_script.append('write(file_out, "T_h_surface = ", T_h_surface, "\\n")')
 
     return problem
-
-
-def _add_rect(geo: Geometry, x0: float, y0: float, x1: float, y1: float) -> None:
-    bl, br, tr, tl = Node(x0, y0), Node(x1, y0), Node(x1, y1), Node(x0, y1)
-    geo.add_line(Line(bl, br))
-    geo.add_line(Line(br, tr))
-    geo.add_line(Line(tr, tl))
-    geo.add_line(Line(tl, bl))
