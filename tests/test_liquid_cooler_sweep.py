@@ -5,6 +5,7 @@ import pytest
 
 from examples.heatflow.liquid_cooler_to247.config import default_waffler_config
 from examples.heatflow.liquid_cooler_to247.sweep import (
+    _make_config,
     parse_csv_result,
     compute_coupling_matrix,
     run_sweep,
@@ -56,6 +57,40 @@ def test_compute_coupling_matrix_diagonal_dominance():
     C = compute_coupling_matrix(cfg, builder="circular", run_fn=fake_run)
     assert C[0, 0] > C[0, 1]
     assert C[1, 1] > C[1, 0]
+
+
+def test_make_config_updates_p_loss():
+    cfg = default_waffler_config(n_devices=2)
+    result = _make_config(cfg, [10.0, 20.0])
+    assert result.devices[0].p_loss == pytest.approx(10.0)
+    assert result.devices[1].p_loss == pytest.approx(20.0)
+    # Other top-level fields are preserved
+    assert result.t_inlet == cfg.t_inlet
+    assert result.device_spacing == cfg.device_spacing
+    # Non-p_loss device fields are preserved
+    assert result.devices[0].a_si == cfg.devices[0].a_si
+
+
+def test_compute_coupling_matrix_formula():
+    """Verify C[k,i] = (T_j[i] - t_inlet) / p_k numerically with known values."""
+    cfg = default_waffler_config(n_devices=2, p_loss=30.0)
+    # t_inlet = 363.15 K, p_loss = 30.0 W
+    # When device 0 is powered:
+    #   T_j_0 = 393.15 → ΔT = 30 K → C[0,0] = 30/30 = 1.0 K/W
+    #   T_j_1 = 378.15 → ΔT = 15 K → C[0,1] = 15/30 = 0.5 K/W
+    call_count = [0]
+
+    def mock_run(problem):
+        k = call_count[0]
+        call_count[0] += 1
+        if k == 0:
+            return _make_mock_result(2, [393.15, 378.15])
+        # Device 1 powered — values don't matter for assertions on C[0,*]
+        return _make_mock_result(2, [363.15, 393.15])
+
+    C = compute_coupling_matrix(cfg, builder="circular", run_fn=mock_run)
+    assert C[0, 0] == pytest.approx(1.0)
+    assert C[0, 1] == pytest.approx(0.5)
 
 
 def test_run_sweep_csv_has_required_columns():
