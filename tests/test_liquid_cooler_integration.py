@@ -1,0 +1,77 @@
+from __future__ import annotations
+
+import os
+
+import httpx
+import pytest
+
+from examples.heatflow.liquid_cooler_to247.config import compute_h, default_waffler_config
+from examples.heatflow.liquid_cooler_to247.circular import build_circular
+from py2femm.client.auto import FemmClient
+
+SERVER_URL = os.environ.get("PYFEMM_AGENT_URL", "http://localhost:8082")
+
+
+def _server_available() -> bool:
+    try:
+        r = httpx.get(f"{SERVER_URL}/api/v1/health", timeout=2)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+
+skip_no_server = pytest.mark.skipif(
+    not _server_available(),
+    reason="FEMM server not available",
+)
+
+
+@skip_no_server
+def test_waffler_single_device_circular():
+    """Validates cooler-block temperature rise (ΔT_h-i) against Waffler §4.4 Table 4.17.
+
+    ΔT_h-i (Al block + convection only) ≈ 4.55 K ± 10% at 30 W.
+    Note: T_j is ~34 K above t_inlet due to Si, TIM, and Cu layers — not the cooler target.
+    """
+    cfg = default_waffler_config(n_devices=1)
+    problem = build_circular(cfg)
+
+    client = FemmClient()
+    result = client.run("\n".join(problem.lua_script))
+    assert result.error is None, f"FEMM error: {result.error}"
+    assert result.csv_data is not None, "No CSV output from FEMM"
+
+    # Parse results
+    lines = result.csv_data.strip().split("\n")
+    data = {}
+    for line in lines:
+        if "=" in line:
+            k, v = line.split("=", 1)
+            data[k.strip()] = float(v.strip())
+
+    assert "T_j_0" in data, f"Key 'T_j_0' missing from parsed output: {result.csv_data!r}"
+    assert "T_h_surface" in data, f"Key 'T_h_surface' missing from parsed output: {result.csv_data!r}"
+    t_inlet = cfg.t_inlet
+    p_loss = cfg.devices[0].p_loss
+
+    T_h_surface_val = data["T_h_surface"]
+    delta_T_cooler = T_h_surface_val - t_inlet
+
+    # Waffler §4.4 Table 4.17: ΔT_h-i (Al block + convection) ≈ 4.55 K ± 10%
+    assert 4.1 <= delta_T_cooler <= 5.0, (
+        f"ΔT_cooler = {delta_T_cooler:.2f} K, expected 4.1–5.0 K (Waffler target: 4.55 K)"
+    )
+
+    # R_th,j-inlet for the cooler only ≈ 4.55/30 ≈ 0.152 K/W
+    R_th = delta_T_cooler / p_loss
+    assert 0.12 <= R_th <= 0.18, f"R_th_cooler = {R_th:.4f} K/W, expected 0.12–0.18 K/W"
+
+
+def test_waffler_h_analytical():
+    """compute_h should return h matching Waffler §4.4 reference value.
+
+    Waffler §4.4 reference: Re ≈ 5568, Gnielinski (1976) → h ≈ 9436 W/m²K.
+    """
+    cfg = default_waffler_config(n_devices=1)
+    h = compute_h(cfg)
+    assert 8500 <= h <= 10000, f"h = {h:.0f} W/m²K, expected 8500–10000 W/m²K (Waffler target: 9436 W/m²K)"
