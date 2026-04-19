@@ -65,25 +65,14 @@ def compute_h(cfg: LiquidCoolerConfig, dh_mm: float | None = None) -> float:
     Pr = eta * _WATER_90C["cp"] / lam
     Re = 4 * cfg.m_dot / (math.pi * eta * dh)
 
-    if Re < 2300:
+    if Re <= 2300:
         Nu = (3.657**3 + 0.644**3 * (Pr * Re * dh / length) ** 1.5) ** (1 / 3)
-    elif Re > 10000:
-        zeta = 1 / (0.78 * math.log(Re) - 1.5) ** 2
-        Nu = (
-            zeta / 8 * Re * Pr
-            / (1 + 12.7 * math.sqrt(zeta / 8) * (Pr ** (2 / 3) - 1))
-            * (1 + (dh / length) ** (2 / 3))
-        )
     else:
-        gamma = (Re - 2300) / 7700
-        Nu_lam = (3.657**3 + 0.644**3 * (Pr * 2300 * dh / length) ** 1.5) ** (1 / 3)
-        zeta_t = 1 / (0.78 * math.log(1e4) - 1.5) ** 2
-        Nu_turb = (
-            zeta_t / 8 * 1e4 * Pr
-            / (1 + 12.7 * math.sqrt(zeta_t / 8) * (Pr ** (2 / 3) - 1))
-            * (1 + (dh / length) ** (2 / 3))
+        # Gnielinski (1976) — valid for Re > 2300
+        zeta = 1.0 / (0.78 * math.log(Re) - 1.5) ** 2
+        Nu = (zeta / 8.0 * (Re - 1000.0) * Pr) / (
+            1.0 + 12.7 * math.sqrt(zeta / 8.0) * (Pr ** (2.0 / 3.0) - 1.0)
         )
-        Nu = (1 - gamma) * Nu_lam + gamma * Nu_turb
 
     return Nu * lam / dh
 

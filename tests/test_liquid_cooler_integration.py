@@ -64,14 +64,10 @@ def test_waffler_single_device_circular():
 
 
 def test_waffler_h_analytical():
-    """compute_h should return h in the physically plausible range for Waffler defaults.
+    """compute_h should return h matching Waffler §4.4 reference value.
 
-    Waffler §4.4 reference: Re ≈ 5568 (transitional), Nu ≈ 28 → h ≈ 9436–11000 W/m²K.
-    The transitional-regime blending formula gives ~11011 W/m²K for these defaults.
+    Waffler §4.4 reference: Re ≈ 5568, Gnielinski (1976) → h ≈ 9436 W/m²K.
     """
     cfg = default_waffler_config(n_devices=1)
     h = compute_h(cfg)
-    # Wide sanity bound: turbulent correlation family for Re~5500, dh=2mm
-    assert 8000 <= h <= 13000, f"h = {h:.0f} W/m²K, expected 8000–13000 W/m²K"
-    # Tighter bound consistent with transitional blending at Re≈5570
-    assert 9000 <= h <= 12000, f"h = {h:.0f} W/m²K (tight range), expected 9000–12000 W/m²K"
+    assert 8500 <= h <= 10000, f"h = {h:.0f} W/m²K, expected 8500–10000 W/m²K (Waffler target: 9436 W/m²K)"
