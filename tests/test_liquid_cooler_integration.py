@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 
+import httpx
 import pytest
-import requests
 
 from examples.heatflow.liquid_cooler_to247.config import compute_h, default_waffler_config
 from examples.heatflow.liquid_cooler_to247.circular import build_circular
@@ -14,7 +14,7 @@ SERVER_URL = os.environ.get("PYFEMM_AGENT_URL", "http://localhost:8082")
 
 def _server_available() -> bool:
     try:
-        r = requests.get(f"{SERVER_URL}/health", timeout=2)
+        r = httpx.get(f"{SERVER_URL}/health", timeout=2)
         return r.status_code == 200
     except Exception:
         return False
@@ -37,6 +37,7 @@ def test_waffler_single_device_circular():
     client = FemmClient()
     result = client.run(problem)
     assert result.error is None, f"FEMM error: {result.error}"
+    assert result.csv_data is not None, f"No CSV output from FEMM; job_id={result.job_id}"
 
     # Parse results
     lines = result.csv_data.strip().split("\n")
@@ -46,8 +47,9 @@ def test_waffler_single_device_circular():
             k, v = line.split("=", 1)
             data[k.strip()] = float(v.strip())
 
+    assert "T_j_0" in data, f"Key 'T_j_0' missing from parsed output: {result.csv_data!r}"
+    assert "T_h_surface" in data, f"Key 'T_h_surface' missing from parsed output: {result.csv_data!r}"
     T_j = data["T_j_0"]
-    T_h_surface = data["T_h_surface"]  # noqa: F841 — kept for diagnostics
     t_inlet = cfg.t_inlet
     p_loss = cfg.devices[0].p_loss
 

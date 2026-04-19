@@ -69,7 +69,7 @@ def compute_h(cfg: LiquidCoolerConfig, dh_mm: float | None = None) -> float:
         Nu = (3.657**3 + 0.644**3 * (Pr * Re * dh / length) ** 1.5) ** (1 / 3)
     else:
         # Gnielinski (1976) — valid for Re > 2300
-        zeta = 1.0 / (0.78 * math.log(Re) - 1.5) ** 2
+        zeta = 1.0 / (0.78 * math.log(Re) - 1.5) ** 2  # friction factor (Petukhov 1970)
         Nu = (zeta / 8.0 * (Re - 1000.0) * Pr) / (
             1.0 + 12.7 * math.sqrt(zeta / 8.0) * (Pr ** (2.0 / 3.0) - 1.0)
         )
