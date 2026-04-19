@@ -47,6 +47,9 @@ class LiquidCoolerConfig:
     def __post_init__(self) -> None:
         if not self.devices:
             raise ValueError("LiquidCoolerConfig requires at least one device")
+        bp_ws = {dev.bp_w for dev in self.devices}
+        if len(bp_ws) > 1:
+            raise ValueError(f"All devices must have the same bp_w; got {bp_ws}")
 
 
 _WATER_90C = {

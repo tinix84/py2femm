@@ -28,8 +28,10 @@ skip_no_server = pytest.mark.skipif(
 
 @skip_no_server
 def test_waffler_single_device_circular():
-    """Validate against Waffler §4.4 Table 4.17 targets:
-    ΔT_h-i (total cooler) ≈ 4.55 K ± 10%
+    """Validates cooler-block temperature rise (ΔT_h-i) against Waffler §4.4 Table 4.17.
+
+    ΔT_h-i (Al block + convection only) ≈ 4.55 K ± 10% at 30 W.
+    Note: T_j is ~34 K above t_inlet due to Si, TIM, and Cu layers — not the cooler target.
     """
     cfg = default_waffler_config(n_devices=1)
     problem = build_circular(cfg)
@@ -49,20 +51,20 @@ def test_waffler_single_device_circular():
 
     assert "T_j_0" in data, f"Key 'T_j_0' missing from parsed output: {result.csv_data!r}"
     assert "T_h_surface" in data, f"Key 'T_h_surface' missing from parsed output: {result.csv_data!r}"
-    T_j = data["T_j_0"]
     t_inlet = cfg.t_inlet
     p_loss = cfg.devices[0].p_loss
 
-    delta_T_cooler = T_j - t_inlet  # total junction-to-inlet
+    T_h_surface_val = data["T_h_surface"]
+    delta_T_cooler = T_h_surface_val - t_inlet
 
-    # Waffler §4.4 target: ΔT_h-i ≈ 4.55 K ± 10%
+    # Waffler §4.4 Table 4.17: ΔT_h-i (Al block + convection) ≈ 4.55 K ± 10%
     assert 4.1 <= delta_T_cooler <= 5.0, (
-        f"ΔT_j-inlet = {delta_T_cooler:.2f} K, expected 4.1–5.0 K (Waffler target: 4.55 K)"
+        f"ΔT_cooler = {delta_T_cooler:.2f} K, expected 4.1–5.0 K (Waffler target: 4.55 K)"
     )
 
-    # R_th,j-inlet sanity check (≈ 4.55/30 ≈ 0.152 K/W)
+    # R_th,j-inlet for the cooler only ≈ 4.55/30 ≈ 0.152 K/W
     R_th = delta_T_cooler / p_loss
-    assert 0.12 <= R_th <= 0.18, f"R_th,j-inlet = {R_th:.4f} K/W, expected 0.12–0.18 K/W"
+    assert 0.12 <= R_th <= 0.18, f"R_th_cooler = {R_th:.4f} K/W, expected 0.12–0.18 K/W"
 
 
 def test_waffler_h_analytical():
