@@ -50,6 +50,10 @@ def test_compute_coupling_matrix_diagonal_dominance():
     def fake_run(problem):
         i = call_count[0]
         call_count[0] += 1
+        # When device 0 is the only source (i==0): T_j_0=395 K (self-heated strongly)
+        # vs T_j_1=368 K (cross-heated weakly), so C[0,0] > C[0,1].
+        # When device 1 is the only source (i==1): T_j_1=393 K (self-heated strongly)
+        # vs T_j_0=366 K (cross-heated weakly), so C[1,1] > C[1,0].
         if i == 0:
             return _make_mock_result(2, [395.0, 368.0])
         return _make_mock_result(2, [366.0, 393.0])

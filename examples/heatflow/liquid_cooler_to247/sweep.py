@@ -3,9 +3,11 @@ from __future__ import annotations
 import csv
 import re
 import sys
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
+
+from py2femm.femm_problem import FemmProblem
 
 from .circular import build_circular
 from .config import DeviceConfig, LiquidCoolerConfig, default_waffler_config
@@ -24,6 +26,9 @@ def parse_csv_result(raw: str, n_devices: int) -> dict[str, float]:
         m = re.match(r"^([\w]+)\s*=\s*([0-9eE+\-.]+)", line)
         if m:
             result[m.group(1)] = float(m.group(2))
+    missing = [f"T_j_{i}" for i in range(n_devices) if f"T_j_{i}" not in result]
+    if missing:
+        raise ValueError(f"FEMM output missing keys: {missing}")
     return result
 
 
@@ -59,7 +64,7 @@ def _make_config(cfg: LiquidCoolerConfig, p_loss_per_device: list[float]) -> Liq
 def compute_coupling_matrix(
     cfg: LiquidCoolerConfig,
     builder: str,
-    run_fn: Callable,
+    run_fn: Callable[[FemmProblem], str],
 ) -> np.ndarray:
     """Return n×n coupling matrix C where C[k,i] = (T_j[i] - T_inlet) / P_k [K/W].
 
@@ -87,7 +92,7 @@ def run_sweep(
     cfg: LiquidCoolerConfig,
     builders: list[str],
     p_loss_values: list[float],
-    run_fn: Callable,
+    run_fn: Callable[[FemmProblem], str],
     out=None,
 ) -> None:
     """Run parametric sweep over builders × p_loss_values; write CSV to out."""
@@ -112,7 +117,7 @@ def run_sweep(
             raw = run_fn(problem)
             parsed = parse_csv_result(raw, n_devices=n)
 
-            row: dict = {
+            row: dict[str, object] = {
                 "builder": builder,
                 "n_devices": n,
                 "p_loss": p_loss,
