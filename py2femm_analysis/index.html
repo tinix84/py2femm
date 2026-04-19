@@ -1,0 +1,3092 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Python automation platform for FEMM finite element simulations">
+      
+      
+      
+        <link rel="canonical" href="https://tinix84.github.io/py2femm/py2femm_analysis/">
+      
+      
+        <link rel="prev" href="../femm_physics_reference/">
+      
+      
+        <link rel="next" href="../about/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>py2femm Analysis - py2femm</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#py2femm-source-code-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="py2femm" class="md-header__button md-logo" aria-label="py2femm" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            py2femm
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              py2femm Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tinix84/py2femm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tinix84/py2femm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/femm-problem/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../examples/heatsink-baseline/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../femm_lua_reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../architecture/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../prd/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  PRD
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="py2femm" class="md-nav__button md-logo" aria-label="py2femm" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    py2femm
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tinix84/py2femm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tinix84/py2femm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Server Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/femm-problem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FemmProblem API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/geometry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/materials-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Materials & Boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Client Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/parametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parametric Studies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/heatsink-baseline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heat Sink Tutorial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/heatsink-parametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Heat Sink Parametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chip Placement Optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../femm_lua_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FEMM Lua Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../femm_physics_reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FEMM Physics Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    py2femm Analysis
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    py2femm Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-package-configuration-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Package Configuration &amp; Entry Points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-module-hierarchy-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Module Hierarchy &amp; Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-core-geometry-classes-py2femmgeometrypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Core Geometry Classes (py2femm/geometry.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Core Geometry Classes (py2femm/geometry.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-node-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Node Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-line-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Line Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-circlearc-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 CircleArc Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-sector-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Sector Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-cubicbezier-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 CubicBezier Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-geometry-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Geometry Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-thermal-analysis-classes-py2femmheatflowpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Thermal Analysis Classes (py2femm/heatflow.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Thermal Analysis Classes (py2femm/heatflow.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-heatflowmaterial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 HeatFlowMaterial
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-heatflowbaseclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 HeatFlowBaseClass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-boundary-condition-subclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Boundary Condition Subclasses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-base-classes-py2femmgeneralpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Base Classes (py2femm/general.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Base Classes (py2femm/general.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-imports-decorators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Imports &amp; Decorators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-material-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Material Base Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-boundary-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Boundary Base Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-enums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Enums
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-main-solver-class-py2femmfemm_problempy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Main Solver Class (py2femm/femm_problem.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Main Solver Class (py2femm/femm_problem.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-femmproblem-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 FemmProblem Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-problem-definition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Problem Definition Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-geometry-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Geometry Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-material-property-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Material &amp; Property Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-block-segment-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Block &amp; Segment Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-analysis-post-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 Analysis &amp; Post-Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-selection-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.7 Selection Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#68-deletion-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.8 Deletion Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#69-lua-script-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.9 Lua Script Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-executor-classes-py2femmexecutorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Executor Classes (py2femm/executor.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Executor Classes (py2femm/executor.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-executor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Executor Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-rabbitexecutor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 RabbitExecutor Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-lua-generation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Lua Generation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Lua Generation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-string-template-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 String Template Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-f-string-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 F-String Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-lua-command-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Lua Command Accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-write-to-file-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Write-to-File Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-key-design-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Key Design Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Key Design Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-separation-of-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Separation of Concerns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-container-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Container Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-dataclass-inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Dataclass + Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-template-substitution-for-lua" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Template Substitution for Lua
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-optional-parameters-via-kwargs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.5 Optional Parameters via **kwargs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-critical-implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Critical Implementation Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-matlaboctave-refactoring-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. MATLAB/Octave Refactoring Implications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. MATLAB/Octave Refactoring Implications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feasible-direct-translations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feasible Direct Translations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requires-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requires Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-octave-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Octave Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing &amp; Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-package-configuration-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Package Configuration &amp; Entry Points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-module-hierarchy-imports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Module Hierarchy &amp; Imports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-core-geometry-classes-py2femmgeometrypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Core Geometry Classes (py2femm/geometry.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Core Geometry Classes (py2femm/geometry.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-node-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Node Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-line-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Line Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-circlearc-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 CircleArc Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-sector-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Sector Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-cubicbezier-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 CubicBezier Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-geometry-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Geometry Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-thermal-analysis-classes-py2femmheatflowpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Thermal Analysis Classes (py2femm/heatflow.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Thermal Analysis Classes (py2femm/heatflow.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-heatflowmaterial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 HeatFlowMaterial
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-heatflowbaseclass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 HeatFlowBaseClass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-boundary-condition-subclasses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Boundary Condition Subclasses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-base-classes-py2femmgeneralpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Base Classes (py2femm/general.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Base Classes (py2femm/general.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-imports-decorators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Imports &amp; Decorators
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-material-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Material Base Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-boundary-base-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Boundary Base Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-enums" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Enums
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-main-solver-class-py2femmfemm_problempy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Main Solver Class (py2femm/femm_problem.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Main Solver Class (py2femm/femm_problem.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-femmproblem-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 FemmProblem Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-problem-definition-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Problem Definition Methods
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-geometry-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Geometry Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-material-property-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Material &amp; Property Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-block-segment-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Block &amp; Segment Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-analysis-post-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.6 Analysis &amp; Post-Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-selection-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.7 Selection Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#68-deletion-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.8 Deletion Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#69-lua-script-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.9 Lua Script Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-executor-classes-py2femmexecutorpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Executor Classes (py2femm/executor.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Executor Classes (py2femm/executor.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-executor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Executor Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-rabbitexecutor-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 RabbitExecutor Class
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-lua-generation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Lua Generation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Lua Generation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-string-template-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 String Template Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-f-string-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 F-String Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-lua-command-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Lua Command Accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-write-to-file-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Write-to-File Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-key-design-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Key Design Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Key Design Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-separation-of-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Separation of Concerns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-container-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Container Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-dataclass-inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Dataclass + Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-template-substitution-for-lua" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Template Substitution for Lua
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#95-optional-parameters-via-kwargs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.5 Optional Parameters via **kwargs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-critical-implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Critical Implementation Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-matlaboctave-refactoring-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. MATLAB/Octave Refactoring Implications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. MATLAB/Octave Refactoring Implications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#feasible-direct-translations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feasible Direct Translations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requires-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requires Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-octave-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended Octave Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-testing-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Testing &amp; Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="py2femm-source-code-analysis">py2femm Source Code Analysis<a class="headerlink" href="#py2femm-source-code-analysis" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-04-05<br />
+<strong>Scope:</strong> Detailed analysis of py2femm GitHub repository structure, class definitions, method signatures, and Lua generation patterns.<br />
+<strong>Purpose:</strong> Support refactoring effort to create MATLAB/Octave equivalent (<code>femm_generator.m</code>)</p>
+<hr />
+<h2 id="1-package-configuration-entry-points">1. Package Configuration &amp; Entry Points<a class="headerlink" href="#1-package-configuration-entry-points" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>pyproject.toml</code></p>
+<ul>
+<li><strong>Package:</strong> <code>py2femm</code></li>
+<li><strong>Version:</strong> <code>0.1.0</code></li>
+<li><strong>Python requirement:</strong> <code>^3.10</code> (Python 3.10+)</li>
+<li><strong>Dependencies:</strong> <code>aio-pika</code> (async RabbitMQ client)</li>
+<li><strong>Dev dependencies:</strong> <code>pytest ^5.2</code></li>
+<li><strong>Build tool:</strong> Poetry</li>
+<li><strong>Entry points:</strong> None (library-only, no CLI)</li>
+</ul>
+<hr />
+<h2 id="2-module-hierarchy-imports">2. Module Hierarchy &amp; Imports<a class="headerlink" href="#2-module-hierarchy-imports" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>py2femm/__init__.py</code></p>
+<ul>
+<li>Exports <code>__version__ = '0.1.0'</code></li>
+<li>No public API exports documented (minimal init file)</li>
+</ul>
+<p><strong>Import chain pattern:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Typical usage:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">py2femm.femm_problem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FemmProblem</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">py2femm.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">CircleArc</span><span class="p">,</span> <span class="n">Sector</span><span class="p">,</span> <span class="n">Geometry</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">py2femm.heatflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeatFlowMaterial</span><span class="p">,</span> <span class="n">HeatFlowFixedTemperature</span><span class="p">,</span> <span class="n">etc</span><span class="o">.</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">py2femm.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">Material</span><span class="p">,</span> <span class="n">Boundary</span><span class="p">,</span> <span class="n">AutoMeshOption</span><span class="p">,</span> <span class="n">FemmFields</span><span class="p">,</span> <span class="n">LengthUnit</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">py2femm.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">RabbitExecutor</span>
+</code></pre></div></p>
+<hr />
+<h2 id="3-core-geometry-classes-py2femmgeometrypy">3. Core Geometry Classes (<code>py2femm/geometry.py</code>)<a class="headerlink" href="#3-core-geometry-classes-py2femmgeometrypy" title="Permanent link">&para;</a></h2>
+<h3 id="31-node-class">3.1 Node Class<a class="headerlink" href="#31-node-class" title="Permanent link">&para;</a></h3>
+<p><strong>No decorators</strong> — regular class</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">:</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="c1"># x, y: float coordinates</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>        <span class="c1"># id: optional unique identifier</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="c1"># label: optional string label</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="c1"># precision: decimal places for rounding (default 6)</span>
+</code></pre></div>
+<p><strong>Key methods:</strong>
+- <code>__add__(p: Node) -&gt; Node</code> — Returns new Node with summed coordinates
+- <code>__sub__(p: Node) -&gt; Node</code> — Returns new Node with subtracted coordinates
+- <code>__mul__(scalar: float) -&gt; Node</code> — Returns scaled Node
+- <code>length() -&gt; float</code> — Euclidean norm sqrt(x² + y²)
+- <code>distance_to(p: Node) -&gt; float</code> — Distance between two nodes
+- <code>as_tuple() -&gt; (float, float)</code> — Returns (x, y) tuple
+- <code>clone() -&gt; Node</code> — Deep copy preserving ID
+- <code>move_xy(dx: float, dy: float)</code> — In-place translation with rounding
+- <code>rotate(rad: float, degrees=False) -&gt; Node</code> — Rotates around origin
+- <code>rotate_about(p: Node, theta: float, degrees=False) -&gt; Node</code> — Rotates around pivot
+- <code>mirror(coord: int=0) -&gt; Node</code> — Mirrors across x-axis (0) or y-axis (1)</p>
+<h3 id="32-line-class">3.2 Line Class<a class="headerlink" href="#32-line-class" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Line</span><span class="p">:</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>  <span class="c1"># Class-level default</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">start_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">end_pt</span><span class="p">:</span> <span class="n">Node</span>
+</code></pre></div>
+<p><strong>Key methods:</strong>
+- <code>selection_point() -&gt; Node</code> — Returns midpoint
+- <code>distance_to_point(px: float, py: float) -&gt; float</code> — Minimum distance using projection</p>
+<h3 id="33-circlearc-class">3.3 CircleArc Class<a class="headerlink" href="#33-circlearc-class" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">CircleArc</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">start_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">center_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">end_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>  <span class="c1"># Class-level default</span>
+</code></pre></div>
+<p><strong>Key methods:</strong>
+- <code>selection_point() -&gt; Node</code> — Returns point on arc at mid-angle
+- (Angle computed from start/center/end geometry)</p>
+<h3 id="34-sector-class">3.4 Sector Class<a class="headerlink" href="#34-sector-class" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Sector</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">start_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">end_pt</span><span class="p">:</span> <span class="n">Node</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">degree</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># Arc angle in degrees</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="nb">id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>  <span class="c1"># Class-level default</span>
+</code></pre></div>
+<p><strong>Key methods:</strong>
+- <code>convert() -&gt; CircleArc</code> — Transforms to CircleArc
+- <code>selection_point() -&gt; Node</code> — Calculates center then returns mid-angle point
+- <code>center_point() -&gt; Node</code> — Returns calculated arc center
+- <code>mid_point() -&gt; Node</code> — Returns chord midpoint</p>
+<h3 id="35-cubicbezier-class">3.5 CubicBezier Class<a class="headerlink" href="#35-cubicbezier-class" title="Permanent link">&para;</a></h3>
+<p>(Not detailed in WebFetch, but referenced in Geometry.cubic_beziers list)</p>
+<h3 id="36-geometry-class">3.6 Geometry Class<a class="headerlink" href="#36-geometry-class" title="Permanent link">&para;</a></h3>
+<p><strong>No decorators</strong> — container class</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Geometry</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>          <span class="c1"># list[Node]</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>          <span class="c1"># list[Line]</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">circle_arcs</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># list[CircleArc]</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">cubic_beziers</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list[CubicBezier]</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="mf">1e-5</span>    <span class="c1"># Class attribute</span>
+</code></pre></div>
+<p><strong>Key methods:</strong>
+- <code>__add__(g: Geometry) -&gt; Geometry</code> — Concatenates nodes, lines, arcs from both
+- <code>duplicate() -&gt; Geometry</code> — Deep copy with independent elements
+- <code>update_nodes(node: Node)</code> — Synchronizes node references in lines/arcs/beziers
+- <code>rotate_about(node: Node, angle: float, degrees: bool)</code> — Rotates all elements
+- <code>append_node(new_node: Node)</code> — Adds node (duplicate check within precision)
+- <code>add_node(node: Node)</code> — Wrapper for append_node
+- <code>add_line(line: Line)</code> — Adds line, ensures endpoints registered
+- <code>add_arc(arc: CircleArc)</code> — Adds arc, ensures endpoints registered
+- <code>add_sector(sector: Sector)</code> — Converts to CircleArc then adds
+- <code>add_cubic_bezier(cb: CubicBezier)</code> — Adds bezier, ensures endpoints registered
+- <code>delete_hanging_nodes()</code> — Removes unreferenced nodes
+- <code>merge_geometry(other: Geometry)</code> — Merges other Geometry's elements
+- <code>merge_lines()</code> — Removes duplicate lines
+- <code>meshi_it(mesh_strategy)</code> — Mesh generation
+- <code>delete_line(x: float, y: float)</code> — Delete line closest to (x,y)
+- <code>find_node(id)</code> — Retrieve node by ID
+- <code>import_dxf(dxf_file: str)</code> — Import from DXF
+- <code>mirror(coord: int)</code> — Mirror across x (0) or y (1)
+- <code>@staticmethod approx_circle(circle)</code> — Approximate arc as segments
+- <code>@staticmethod casteljau(bezier)</code> — De Casteljau iteration</p>
+<hr />
+<h2 id="4-thermal-analysis-classes-py2femmheatflowpy">4. Thermal Analysis Classes (<code>py2femm/heatflow.py</code>)<a class="headerlink" href="#4-thermal-analysis-classes-py2femmheatflowpy" title="Permanent link">&para;</a></h2>
+<h3 id="41-heatflowmaterial">4.1 HeatFlowMaterial<a class="headerlink" href="#41-heatflowmaterial" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code><br />
+<strong>Inherits:</strong> <code>Material</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">HeatFlowMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">kx</span><span class="p">:</span> <span class="nb">float</span>         <span class="c1"># Thermal conductivity, x-direction</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">ky</span><span class="p">:</span> <span class="nb">float</span>         <span class="c1"># Thermal conductivity, y-direction</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">qv</span><span class="p">:</span> <span class="nb">float</span>         <span class="c1"># Volumetric heat generation</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">kt</span><span class="p">:</span> <span class="nb">float</span>         <span class="c1"># Transient thermal parameter</span>
+</code></pre></div>
+<p><strong>Lua generation template:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>hi_addmaterial($materialname, $kx, $ky, $qv, $kt)
+</code></pre></div></p>
+<h3 id="42-heatflowbaseclass">4.2 HeatFlowBaseClass<a class="headerlink" href="#42-heatflowbaseclass" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code><br />
+<strong>Inherits:</strong> <code>Boundary</code></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">HeatFlowBaseClass</span><span class="p">(</span><span class="n">Boundary</span><span class="p">):</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span>              <span class="c1"># Boundary condition identifier</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">Tset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># Set temperature</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">qs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>          <span class="c1"># Heat flux</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">Tinf</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># Ambient temperature</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="n">h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>           <span class="c1"># Convection coefficient</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># Radiation emissivity</span>
+</code></pre></div>
+<h3 id="43-boundary-condition-subclasses">4.3 Boundary Condition Subclasses<a class="headerlink" href="#43-boundary-condition-subclasses" title="Permanent link">&para;</a></h3>
+<p>All inherit from <code>HeatFlowBaseClass</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Type</th>
+<th>Constructor</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>HeatFlowFixedTemperature</code></td>
+<td>0</td>
+<td><code>(name, Tset)</code></td>
+<td>Constant temperature</td>
+</tr>
+<tr>
+<td><code>HeatFlowHeatFlux</code></td>
+<td>1</td>
+<td><code>(name, qs)</code></td>
+<td>Specified heat flux</td>
+</tr>
+<tr>
+<td><code>HeatFlowConvection</code></td>
+<td>2</td>
+<td><code>(name, Tinf, h)</code></td>
+<td>Convection BC</td>
+</tr>
+<tr>
+<td><code>HeatFlowRadiation</code></td>
+<td>3</td>
+<td><code>(name, Tinf, beta)</code></td>
+<td>Radiation BC</td>
+</tr>
+<tr>
+<td><code>HeatFlowPeriodic</code></td>
+<td>4</td>
+<td><code>(name)</code></td>
+<td>Periodic symmetry</td>
+</tr>
+<tr>
+<td><code>HeatFlowAntiPeriodic</code></td>
+<td>5</td>
+<td><code>(name)</code></td>
+<td>Anti-periodic</td>
+</tr>
+</tbody>
+</table>
+<p>Each subclass sets <code>type</code> field and initializes relevant thermal parameters.</p>
+<hr />
+<h2 id="5-base-classes-py2femmgeneralpy">5. Base Classes (<code>py2femm/general.py</code>)<a class="headerlink" href="#5-base-classes-py2femmgeneralpy" title="Permanent link">&para;</a></h2>
+<h3 id="51-imports-decorators">5.1 Imports &amp; Decorators<a class="headerlink" href="#51-imports-decorators" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+</code></pre></div>
+<h3 id="52-material-base-class">5.2 Material Base Class<a class="headerlink" href="#52-material-base-class" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code><br />
+<strong>Abstract:</strong> Yes (ABC)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Material</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">material_name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">auto_mesh</span><span class="p">:</span> <span class="n">AutoMeshOption</span>      <span class="c1"># Enum for mesh strategy</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">mesh_size</span><span class="p">:</span> <span class="nb">float</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">b</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1"># BH curve points (magnetic context)</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="n">h</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1"># BH curve points (magnetic context)</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>    <span class="n">material_positions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="n">remanence_angle</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="53-boundary-base-class">5.3 Boundary Base Class<a class="headerlink" href="#53-boundary-base-class" title="Permanent link">&para;</a></h3>
+<p><strong>Decorated:</strong> <code>@dataclass</code><br />
+<strong>Abstract:</strong> Yes (ABC)</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Boundary</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">boundary_edges</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="54-enums">5.4 Enums<a class="headerlink" href="#54-enums" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">AutoMeshOption</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="c1"># Mesh strategy options</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="o">...</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">FemmFields</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="c1"># Field types with conversion methods</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="n">MAGNETIC</span> <span class="o">=</span> <span class="s2">&quot;mi&quot;</span>  <span class="c1"># Magnetic</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="n">THERMAL</span> <span class="o">=</span> <span class="s2">&quot;hi&quot;</span>   <span class="c1"># Heat flow (hi_*)</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>    <span class="n">ELECTROSTATIC</span> <span class="o">=</span> <span class="s2">&quot;ei&quot;</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>    <span class="n">CURRENTFLOW</span> <span class="o">=</span> <span class="s2">&quot;ci&quot;</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">input_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>        <span class="c1"># &quot;magnetic&quot; → &quot;mi&quot;</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">output_to_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>        <span class="c1"># &quot;magnetic&quot; → &quot;mo&quot;</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a><span class="k">class</span><span class="w"> </span><span class="nc">LengthUnit</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>    <span class="c1"># meter, centimeter, millimeter, etc.</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>    <span class="o">...</span>
+</code></pre></div>
+<hr />
+<h2 id="6-main-solver-class-py2femmfemm_problempy">6. Main Solver Class (<code>py2femm/femm_problem.py</code>)<a class="headerlink" href="#6-main-solver-class-py2femmfemm_problempy" title="Permanent link">&para;</a></h2>
+<h3 id="61-femmproblem-class">6.1 FemmProblem Class<a class="headerlink" href="#61-femmproblem-class" title="Permanent link">&para;</a></h3>
+<p><strong>No inheritance</strong> — standalone class</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FemmProblem</span><span class="p">:</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="o">=</span><span class="s2">&quot;fem_data.csv&quot;</span><span class="p">):</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="kc">None</span>                    <span class="c1"># FemmFields enum value</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">lua_script</span> <span class="o">=</span> <span class="p">[]</span>                 <span class="c1"># list[str] — accumulated Lua commands</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span> <span class="o">=</span> <span class="n">out_file</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">integral_counter</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_file</span> <span class="o">=</span> <span class="s2">&quot;elements.csv&quot;</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">node_file</span> <span class="o">=</span> <span class="s2">&quot;node.csv&quot;</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">node_nr</span> <span class="o">=</span> <span class="s2">&quot;node_nr&quot;</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">element_nr</span> <span class="o">=</span> <span class="s2">&quot;element_nr&quot;</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">point_values</span> <span class="o">=</span> <span class="s2">&quot;point_values.csv&quot;</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">nodal_coords</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">element_coords</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">post_processing_activated</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+<h3 id="62-problem-definition-methods">6.2 Problem Definition Methods<a class="headerlink" href="#62-problem-definition-methods" title="Permanent link">&para;</a></h3>
+<p>All append to <code>self.lua_script</code> list. Use <code>${field}</code> template variable for field prefix (mi_, hi_, ei_, ci_).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">magnetic_problem</span><span class="p">(</span><span class="n">freq</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>                     <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>                     <span class="n">minangle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">acsolver</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="c1"># Template: mi_probdef($frequency,$units,$type,$precision, $depth, $minangle, $acsolver)</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">heat_problem</span><span class="p">(</span><span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>                 <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">minangle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>                 <span class="n">prevsoln</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">timestep</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="c1"># F-string template: hi_probdef(...)</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="k">def</span><span class="w"> </span><span class="nf">electrostatic_problem</span><span class="p">(</span><span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>                          <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">minangle</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>    <span class="c1"># F-string template: ei_probdef(...)</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">currentflow_problem</span><span class="p">(</span><span class="n">units</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">frequency</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>                        <span class="n">precision</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">minangle</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>    <span class="c1"># F-string template: ci_probdef(...)</span>
+</code></pre></div>
+<h3 id="63-geometry-operations">6.3 Geometry Operations<a class="headerlink" href="#63-geometry-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">create_geometry</span><span class="p">(</span><span class="n">geometry</span><span class="p">:</span> <span class="n">Geometry</span><span class="p">):</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="c1"># Processes all nodes, lines, arcs from Geometry object</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="c1"># Template: &quot;${field}_addnode($x_coord, $y_coord)&quot;</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_segment</span><span class="p">(</span><span class="n">start_pt</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">end_pt</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="c1"># Template: &quot;${field}_addsegment($x1_coord, $y1_coord, $x2_coord, $y2_coord)&quot;</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_arc</span><span class="p">(</span><span class="n">start_pt</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">end_pt</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">maxseg</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="c1"># Template: &quot;${field}_addarc($x_1, $y_1, $x_2, $y_2, $angle, $maxseg)&quot;</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_blocklabel</span><span class="p">(</span><span class="n">label</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>    <span class="c1"># Template: &quot;${field}_addblocklabel($x_coord, $y_coord)&quot;</span>
+</code></pre></div>
+<h3 id="64-material-property-operations">6.4 Material &amp; Property Operations<a class="headerlink" href="#64-material-property-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_material</span><span class="p">(</span><span class="n">material</span><span class="p">:</span> <span class="n">Material</span><span class="p">):</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="c1"># Appends material string, optionally adds BH curve points</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_bh_curve</span><span class="p">(</span><span class="n">material_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_b</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">data_h</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="c1"># Template: &#39;mi_addbhpoint(&quot;$material_name&quot;, $bi, $hi)&#39; for each point</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_boundary</span><span class="p">(</span><span class="n">boundary</span><span class="p">:</span> <span class="n">Boundary</span><span class="p">):</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>    <span class="c1"># Converts boundary object to Lua string</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_point_property</span><span class="p">(</span><span class="n">prop_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>    <span class="c1"># Field-specific templates for electrostatics, magnetics, heat flow, current flow</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_circuit_property</span><span class="p">(</span><span class="n">circuit_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">circuit_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>    <span class="c1"># Template: &#39;mi_addcircprop(&quot;$circuit_name&quot;,$i,$circuit_type)&#39;</span>
+</code></pre></div>
+<h3 id="65-block-segment-properties">6.5 Block &amp; Segment Properties<a class="headerlink" href="#65-block-segment-properties" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_blockprop</span><span class="p">(</span><span class="n">blockname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">automesh</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">meshsize</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> 
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>                  <span class="n">group</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="c1"># Template varies by field (mi_setblockprop, hi_setblockprop, etc.)</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_segment_prop</span><span class="p">(</span><span class="n">propname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">elementsize</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">automesh</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> 
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>                     <span class="n">hide</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inductor</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="c1"># Template: &quot;${field}_setsegmentprop(...)&quot;</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="k">def</span><span class="w"> </span><span class="nf">set_arc_segment_prop</span><span class="p">(</span><span class="n">maxsegdeg</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">propname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> 
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>                         <span class="n">hide</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>    <span class="c1"># Field-specific (magnetic, electrostatic)</span>
+</code></pre></div>
+<h3 id="66-analysis-post-processing">6.6 Analysis &amp; Post-Processing<a class="headerlink" href="#66-analysis-post-processing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span><span class="n">flag</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="c1"># Template: &quot;${field}_analyze($flag)&quot;</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_solution</span><span class="p">():</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="c1"># Template: &quot;${field}_loadsolution()&quot;</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">save_as</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    <span class="c1"># Template: &quot;${field}_saveas($filename)&quot;</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_point_values</span><span class="p">(</span><span class="n">point</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="c1"># Retrieves field values at point</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    <span class="c1"># Possible keys: A, B1, B2, Sig, E, H1, H2, Je, Js, Mu1, Mu2, Pe, Ph</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">block_integral</span><span class="p">(</span><span class="nb">type</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    <span class="c1"># Calculates block integral (type 0-30 options available)</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a><span class="k">def</span><span class="w"> </span><span class="nf">line_integral</span><span class="p">(</span><span class="nb">type</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>    <span class="c1"># Calculates line contour integral</span>
+</code></pre></div>
+<h3 id="67-selection-operations">6.7 Selection Operations<a class="headerlink" href="#67-selection-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_node</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_segment</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_arc_segment</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_label</span><span class="p">(</span><span class="n">label</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_circle</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">R</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">editmode</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_rectangle</span><span class="p">(</span><span class="n">x1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">editmode</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">select_group</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="68-deletion-operations">6.8 Deletion Operations<a class="headerlink" href="#68-deletion-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete_selected</span><span class="p">()</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete_selected_nodes</span><span class="p">()</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete_selected_labels</span><span class="p">()</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete_selected_segments</span><span class="p">()</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="k">def</span><span class="w"> </span><span class="nf">delete_selected_arc_segments</span><span class="p">()</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">clear_selected</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="69-lua-script-output">6.9 Lua Script Output<a class="headerlink" href="#69-lua-script-output" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">close_after</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="c1"># Outputs accumulated self.lua_script list as newline-separated commands</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="c1"># Lua file ready for FEMM interpreter</span>
+</code></pre></div>
+<hr />
+<h2 id="7-executor-classes-py2femmexecutorpy">7. Executor Classes (<code>py2femm/executor.py</code>)<a class="headerlink" href="#7-executor-classes-py2femmexecutorpy" title="Permanent link">&para;</a></h2>
+<h3 id="71-executor-class">7.1 Executor Class<a class="headerlink" href="#71-executor-class" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Executor</span><span class="p">:</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>    <span class="c1"># Platform detection: Linux uses Wine (~/.wine/drive_c/femm42/bin/femm.exe)</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>    <span class="c1">#                     Windows uses direct path (C:\femm42\bin\femm.exe)</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">script_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>        <span class="c1"># Executes FEMM with Lua script via subprocess</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>        <span class="c1"># Arguments: &quot;-lua-script={script_file}&quot;</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>        <span class="c1"># Uses Timer for timeout management</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>        <span class="c1"># Subprocess pattern: Popen with stdout/stderr piping</span>
+</code></pre></div>
+<h3 id="72-rabbitexecutor-class">7.2 RabbitExecutor Class<a class="headerlink" href="#72-rabbitexecutor-class" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">RabbitExecutor</span><span class="p">:</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;py2femm-rabbitmq&quot;</span><span class="p">,</span> <span class="n">script_files</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]):</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">script_files</span> <span class="o">=</span> <span class="n">script_files</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">()</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>        <span class="c1"># Initializes Registry for RabbitMQ</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>        <span class="c1"># Uses ProcessPoolExecutor with max 4 workers</span>
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">broker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-23-12" name="__codelineno-23-12" href="#__codelineno-23-12"></a>        <span class="c1"># Uses NullExecutor for RabbitMQ distributed tasks (AMQP protocol)</span>
+</code></pre></div>
+<hr />
+<h2 id="8-lua-generation-patterns">8. Lua Generation Patterns<a class="headerlink" href="#8-lua-generation-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="81-string-template-strategy">8.1 String Template Strategy<a class="headerlink" href="#81-string-template-strategy" title="Permanent link">&para;</a></h3>
+<p><strong>Used in:</strong> <code>add_node()</code>, <code>add_segment()</code>, <code>add_arc()</code>, etc.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">Template</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="c1"># Example:</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{field}</span><span class="s2">_addnode($x_coord, $y_coord)&quot;</span><span class="p">)</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="n">lua_command</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">&quot;hi&quot;</span><span class="p">,</span> <span class="n">x_coord</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">y_coord</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="c1"># Result: &quot;hi_addnode(0.5, 1.0)&quot;</span>
+</code></pre></div>
+<h3 id="82-f-string-strategy">8.2 F-String Strategy<a class="headerlink" href="#82-f-string-strategy" title="Permanent link">&para;</a></h3>
+<p><strong>Used in:</strong> <code>heat_problem()</code>, <code>electrostatic_problem()</code>, etc.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># Example:</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;meters&quot;</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="n">type_str</span> <span class="o">=</span> <span class="s2">&quot;axi&quot;</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="n">lua_command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hi_probdef(&#39;</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">&#39;, &#39;</span><span class="si">{</span><span class="n">type_str</span><span class="si">}</span><span class="s2">&#39;, ...)&quot;</span>
+</code></pre></div>
+<h3 id="83-lua-command-accumulation">8.3 Lua Command Accumulation<a class="headerlink" href="#83-lua-command-accumulation" title="Permanent link">&para;</a></h3>
+<p>All geometry/material/property operations <strong>append strings to <code>self.lua_script</code> list</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="n">template</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">{field}</span><span class="s2">_addnode($x_coord, $y_coord)&quot;</span><span class="p">)</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="n">cmd</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">input_to_string</span><span class="p">(),</span> 
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>                              <span class="n">x_coord</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> 
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>                              <span class="n">y_coord</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">lua_script</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>  <span class="c1"># &lt;-- Key pattern</span>
+</code></pre></div>
+<h3 id="84-write-to-file-pattern">8.4 Write-to-File Pattern<a class="headerlink" href="#84-write-to-file-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">close_after</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>        <span class="c1"># Write all accumulated commands, one per line</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>        <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lua_script</span><span class="p">:</span>
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cmd</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>        <span class="c1"># Optionally close FEMM</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a>        <span class="k">if</span> <span class="n">close_after</span><span class="p">:</span>
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;femm.closefemm()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="9-key-design-patterns">9. Key Design Patterns<a class="headerlink" href="#9-key-design-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="91-separation-of-concerns">9.1 Separation of Concerns<a class="headerlink" href="#91-separation-of-concerns" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Geometry:</strong> Independent of field type (Geometry can be reused)</li>
+<li><strong>Field definition:</strong> Separate method for each physics type (magnetic, thermal, etc.)</li>
+<li><strong>Lua generation:</strong> Centralized in FemmProblem class</li>
+</ul>
+<h3 id="92-container-pattern">9.2 Container Pattern<a class="headerlink" href="#92-container-pattern" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>Geometry</code> acts as container for nodes, lines, arcs</li>
+<li><code>FemmProblem</code> acts as container for Lua commands</li>
+<li>Both accumulate objects/commands, then serialize</li>
+</ul>
+<h3 id="93-dataclass-inheritance">9.3 Dataclass + Inheritance<a class="headerlink" href="#93-dataclass-inheritance" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nd">@dataclass</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">HeatFlowMaterial</span><span class="p">(</span><span class="n">Material</span><span class="p">):</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>    <span class="n">kx</span><span class="p">:</span> <span class="nb">float</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a>    <span class="n">ky</span><span class="p">:</span> <span class="nb">float</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>    <span class="c1"># ...inherits material_name, auto_mesh, mesh_size from Material</span>
+</code></pre></div>
+<h3 id="94-template-substitution-for-lua">9.4 Template Substitution for Lua<a class="headerlink" href="#94-template-substitution-for-lua" title="Permanent link">&para;</a></h3>
+<p>Uses <code>string.Template</code> with <code>${field}</code> placeholder to inject field prefix dynamically:
+- <code>mi_</code> for magnetic
+- <code>hi_</code> for heat flow
+- <code>ei_</code> for electrostatic
+- <code>ci_</code> for current flow</p>
+<h3 id="95-optional-parameters-via-kwargs">9.5 Optional Parameters via **kwargs<a class="headerlink" href="#95-optional-parameters-via-kwargs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_point_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prop_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>    <span class="c1"># Handles field-specific parameters without explicit method overloading</span>
+</code></pre></div>
+<hr />
+<h2 id="10-critical-implementation-notes">10. Critical Implementation Notes<a class="headerlink" href="#10-critical-implementation-notes" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>No ActiveX:</strong> py2femm avoids ActiveX entirely — it generates text Lua files only.</p>
+</li>
+<li>
+<p><strong>File-based interface:</strong> All interactions are through generated <code>.lua</code> scripts, not live API calls.</p>
+</li>
+<li>
+<p><strong>Lua output is human-readable:</strong> Each command is a plain Lua line, can be inspected/debugged.</p>
+</li>
+<li>
+<p><strong>Precision handling:</strong> Node class supports configurable decimal precision (default 6).</p>
+</li>
+<li>
+<p><strong>Geometry validation:</strong> <code>append_node()</code> uses <code>precision</code> threshold to detect duplicates.</p>
+</li>
+<li>
+<p><strong>Enum-based field selection:</strong> <code>FemmFields.THERMAL.input_to_string()</code> returns <code>"hi"</code> for template substitution.</p>
+</li>
+<li>
+<p><strong>Async execution optional:</strong> <code>RabbitExecutor</code> allows distributed FEMM runs via RabbitMQ (advanced feature).</p>
+</li>
+<li>
+<p><strong>Transient thermal support:</strong> <code>heat_problem()</code> accepts <code>prevsoln</code> (previous solution) and <code>timestep</code> for time-stepping.</p>
+</li>
+</ol>
+<hr />
+<h2 id="11-matlaboctave-refactoring-implications">11. MATLAB/Octave Refactoring Implications<a class="headerlink" href="#11-matlaboctave-refactoring-implications" title="Permanent link">&para;</a></h2>
+<h3 id="feasible-direct-translations">Feasible Direct Translations<a class="headerlink" href="#feasible-direct-translations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✓ Node class (struct with methods → classdef)</li>
+<li>✓ Geometry container (cell arrays of objects)</li>
+<li>✓ Material definitions (struct dataclasses → classdef)</li>
+<li>✓ FemmProblem central dispatcher (main class)</li>
+<li>✓ Lua generation via string concatenation (sprintf/strcat)</li>
+<li>✓ File I/O (fopen/fprintf)</li>
+</ul>
+<h3 id="requires-adaptation">Requires Adaptation<a class="headerlink" href="#requires-adaptation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dataclass decorators → classdef with properties</li>
+<li>abc.ABC abstractmethod → Octave abstract pattern (if needed)</li>
+<li>enum.Enum → classdef with constant properties</li>
+<li>uuid.uuid4() → alternative unique ID scheme</li>
+<li>string.Template → sprintf with %s placeholders</li>
+<li>subprocess.Popen → system() calls (Octave-specific)</li>
+</ul>
+<h3 id="recommended-octave-patterns">Recommended Octave Patterns<a class="headerlink" href="#recommended-octave-patterns" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Struct-based nodes:</strong> Use struct arrays for simplicity
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">node</span><span class="p">.</span><span class="n">x</span> <span class="p">=</span> <span class="mf">0.5</span><span class="p">;</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="n">node</span><span class="p">.</span><span class="n">y</span> <span class="p">=</span> <span class="mf">1.0</span><span class="p">;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Cell arrays for geometry:</strong> Store nodes/lines/arcs in cell arrays
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">geometry</span><span class="p">.</span><span class="n">nodes</span> <span class="p">=</span> <span class="p">{};</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="n">geometry</span><span class="p">.</span><span class="n">lines</span> <span class="p">=</span> <span class="p">{};</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>sprintf for Lua:</strong> Build commands dynamically
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">cmd</span> <span class="p">=</span> <span class="nb">sprintf</span><span class="p">(</span><span class="s">&#39;hi_addnode(%g, %g)&#39;</span><span class="p">,</span> <span class="n">node</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">node</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="n">lua_script</span><span class="p">{</span><span class="k">end</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span> <span class="p">=</span> <span class="n">cmd</span><span class="p">;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>File export:</strong> Use fprintf() in loop
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">fid</span> <span class="p">=</span> <span class="nb">fopen</span><span class="p">(</span><span class="s">&#39;script.lua&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">);</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="k">for</span> <span class="n">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">lua_script</span><span class="p">)</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>    <span class="nb">fprintf</span><span class="p">(</span><span class="n">fid</span><span class="p">,</span> <span class="s">&#39;%s\n&#39;</span><span class="p">,</span> <span class="n">lua_script</span><span class="p">{</span><span class="n">i</span><span class="p">});</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="k">end</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="nb">fclose</span><span class="p">(</span><span class="n">fid</span><span class="p">);</span>
+</code></pre></div></p>
+</li>
+</ol>
+<hr />
+<h2 id="12-testing-validation">12. Testing &amp; Validation<a class="headerlink" href="#12-testing-validation" title="Permanent link">&para;</a></h2>
+<p>The analysis reveals py2femm does <strong>not include unit tests</strong> for Lua generation (only pytest configuration for integration tests). </p>
+<p>For Octave port:
+- Generate sample Lua scripts
+- Verify output matches py2femm reference
+- Test with actual FEMM to ensure correctness</p>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>GitHub: https://raw.githubusercontent.com/tamasorosz/py2femm/master/</li>
+<li>Key modules:</li>
+<li><code>py2femm/femm_problem.py</code> (46 KB) — FemmProblem dispatcher</li>
+<li><code>py2femm/geometry.py</code> — Node, Line, CircleArc, Geometry</li>
+<li><code>py2femm/heatflow.py</code> — HeatFlowMaterial, boundary conditions</li>
+<li><code>py2femm/general.py</code> — Base Material, Boundary, enums</li>
+<li><code>py2femm/executor.py</code> — FEMM subprocess runner</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024-2026 Riccardo Tinivella. Licensed under AGPL-3.0-or-later.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/tinix84/py2femm" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
