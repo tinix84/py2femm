@@ -24,15 +24,28 @@ def build_rectangular(cfg: LiquidCoolerConfig) -> FemmProblem:
     h_cp = cfg.h_cp
     ch_w = cfg.ch_w
     ch_h = cfg.ch_h
+    fin_w = cfg.fin_w
     cy_ch = h_cp / 2
+
+    max_ch_w = cfg.s_t - fin_w
+    if max_ch_w <= 0:
+        raise ValueError(f"s_t ({cfg.s_t}) must be > fin_w ({fin_w})")
+    if ch_w > max_ch_w:
+        raise ValueError(
+            f"ch_w ({ch_w}) exceeds available width {max_ch_w} (s_t - fin_w)"
+        )
 
     geo = Geometry()
 
     # Cooler outer rectangle
     add_rect(geo, 0.0, 0.0, b_cp, h_cp)
 
-    # Rectangular channel voids (no block labels inside)
-    channel_xs = [cfg.s_t / 2 + i * cfg.s_t for i in range(cfg.n_channels)]
+    # Rectangular channel voids — filter to channels fully inside [0, b_cp]
+    channel_xs = [
+        cx
+        for cx in (cfg.s_t / 2 + i * cfg.s_t for i in range(cfg.n_channels))
+        if cx - ch_w / 2 >= 0.0 and cx + ch_w / 2 <= b_cp
+    ]
     for cx in channel_xs:
         add_rect(geo, cx - ch_w / 2, cy_ch - ch_h / 2, cx + ch_w / 2, cy_ch + ch_h / 2)
 
@@ -77,7 +90,7 @@ def build_rectangular(cfg: LiquidCoolerConfig) -> FemmProblem:
 
     # Boundary Conditions
     dh_mm = 2 * ch_w * ch_h / (ch_w + ch_h)
-    h_conv = compute_h(cfg, dh_mm=dh_mm)
+    h_conv = compute_h(cfg, dh_mm=dh_mm, area_mm2=ch_w * ch_h)
     convection = HeatFlowConvection(name="CoolantConvection", Tinf=cfg.t_inlet, h=h_conv)
     convection.Tset = 0
     convection.qs = 0

@@ -30,8 +30,13 @@ def build_circular(cfg: LiquidCoolerConfig) -> FemmProblem:
     # Cooler outer rectangle
     add_rect(geo, 0.0, 0.0, b_cp, h_cp)
 
-    # Circular channels: two 180° arcs per channel form a complete circle void
-    channel_xs = [cfg.s_t / 2 + i * cfg.s_t for i in range(cfg.n_channels)]
+    # Circular channels: two 180° arcs per channel form a complete circle void.
+    # Filter to channels whose full diameter lies within [0, b_cp].
+    channel_xs = [
+        cx
+        for cx in (cfg.s_t / 2 + i * cfg.s_t for i in range(cfg.n_channels))
+        if cx - r >= 0.0 and cx + r <= b_cp
+    ]
     for cx in channel_xs:
         top_n = Node(cx, cy_ch + r)
         bot_n = Node(cx, cy_ch - r)

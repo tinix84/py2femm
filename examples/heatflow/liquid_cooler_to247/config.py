@@ -59,14 +59,23 @@ _WATER_90C = {
 }
 
 
-def compute_h(cfg: LiquidCoolerConfig, dh_mm: float | None = None) -> float:
-    """Convective coefficient [W/m²K] on channel wall — Waffler eq. 4.145-4.148."""
+def compute_h(
+    cfg: LiquidCoolerConfig,
+    dh_mm: float | None = None,
+    area_mm2: float | None = None,
+) -> float:
+    """Convective coefficient [W/m²K] on channel wall — Waffler eq. 4.145-4.148.
+
+    For non-circular channels, pass area_mm2 (cross-section area) so Re is computed
+    as m_dot*dh/(eta*A) rather than assuming a circular cross-section.
+    """
     dh = (dh_mm if dh_mm is not None else cfg.d_t) * 1e-3
     length = cfg.l_cp * 1e-3
     eta = _WATER_90C["eta"]
     lam = _WATER_90C["lam"]
     Pr = eta * _WATER_90C["cp"] / lam
-    Re = 4 * cfg.m_dot / (math.pi * eta * dh)
+    A = area_mm2 * 1e-6 if area_mm2 is not None else math.pi * dh**2 / 4
+    Re = cfg.m_dot * dh / (eta * A)
 
     if Re <= 2300:
         Nu = (3.657**3 + 0.644**3 * (Pr * Re * dh / length) ** 1.5) ** (1 / 3)

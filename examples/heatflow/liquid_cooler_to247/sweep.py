@@ -34,6 +34,8 @@ def parse_csv_result(raw: str, n_devices: int) -> dict[str, float]:
 
 def _make_config(cfg: LiquidCoolerConfig, p_loss_per_device: list[float]) -> LiquidCoolerConfig:
     """Return a new config with per-device p_loss values replaced."""
+    if len(p_loss_per_device) != cfg.n_devices:
+        raise ValueError(f"Expected {cfg.n_devices} p_loss values, got {len(p_loss_per_device)}")
     devices = [
         DeviceConfig(
             name=dev.name,
@@ -140,8 +142,8 @@ if __name__ == "__main__":
     cfg = default_waffler_config(n_devices=3, p_loss=30.0)
     client = FemmClient()
 
-    def _run(problem):
-        result = client.run(problem)
+    def _run(problem: FemmProblem) -> str:
+        result = client.run("\n".join(problem.lua_script))
         return result.csv_data or ""
 
     print("=== Coupling matrix (circular) ===")

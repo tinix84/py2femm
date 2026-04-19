@@ -17,12 +17,6 @@ See GitHub issue #1 for motivation.
 """
 from __future__ import annotations
 
-import argparse
-import json
-import subprocess
-import sys
-import time
-import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -168,3 +162,82 @@ def build_geometry(cfg: MultiZoneConfig) -> tuple[Geometry, list[Node], list[Lin
     geo.lines = all_lines
 
     return geo, bottom_nodes, top_segments, internal_lines
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FEMM model builder
+# ═══════════════════════════════════════════════════════════════════
+
+def build_model(cfg: MultiZoneConfig) -> str:
+    """Build a multi-zone FEMM heat flow model, return the Lua script."""
+    validate_config(cfg)
+    geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
+
+    problem = FemmProblem(out_file="multizone_results.csv")
+    problem.heat_problem(
+        units=LengthUnit.MILLIMETERS, type="planar",
+        precision=1e-8, depth=cfg.depth, minangle=30,
+    )
+    problem.create_geometry(geo)
+
+    # --- Materials (deduplicated by name) ---
+    added_materials: dict[str, HeatFlowMaterial] = {}
+    for zone in cfg.zones:
+        if zone.material not in added_materials:
+            mat = HeatFlowMaterial(
+                material_name=zone.material, kx=zone.kx, ky=zone.ky, qv=0.0, kt=0.0,
+            )
+            problem.add_material(mat)
+            added_materials[zone.material] = mat
+
+    # Block label per zone
+    for i, zone in enumerate(cfg.zones):
+        label_x = (zone.x_start + zone.x_end) / 2
+        label_y = cfg.base_h / 2
+        problem.define_block_label(Node(label_x, label_y), added_materials[zone.material])
+
+    # --- Boundary conditions ---
+    # Per-chip heat flux on bottom surface
+    for chip in cfg.chips:
+        x_left = chip.x_center - chip.width / 2
+        x_right = chip.x_center + chip.width / 2
+        qs = chip.power / (chip.width * cfg.depth * 1e-6)
+        bc = HeatFlowHeatFlux(name=f"Heat_{chip.name}", qs=-qs)
+        bc.Tset = 0; bc.Tinf = 0; bc.h = 0; bc.beta = 0
+        problem.add_boundary(bc)
+        seg_mid_x = (x_left + x_right) / 2
+        problem.set_boundary_definition_segment(Node(seg_mid_x, 0), bc, elementsize=1)
+
+    # Per-zone convection on top surface
+    for i, (zone, top_seg) in enumerate(zip(cfg.zones, top_segments)):
+        conv = HeatFlowConvection(name=f"Conv_zone_{i}", Tinf=cfg.t_ambient, h=zone.h_conv)
+        conv.Tset = 0; conv.qs = 0; conv.beta = 0
+        problem.add_boundary(conv)
+        problem.set_boundary_definition_segment(top_seg.selection_point(), conv, elementsize=1)
+
+    # Side walls and bottom non-contact segments: leave unassigned (insulated)
+    # Internal partition lines: leave unassigned (perfect thermal contact)
+
+    # --- Analysis + post-processing ---
+    problem.make_analysis("planar")
+
+    # Chip temperatures
+    for chip in cfg.chips:
+        problem.lua_script.append(f"T_{chip.name} = ho_getpointvalues({chip.x_center}, 0)")
+        problem.lua_script.append(
+            f'write(file_out, "T_{chip.name}_K = ", T_{chip.name}, "\\n")'
+        )
+
+    # Per-zone average temperature
+    for i, zone in enumerate(cfg.zones):
+        label_x = (zone.x_start + zone.x_end) / 2
+        label_y = cfg.base_h / 2
+        problem.lua_script.append(f"ho_selectblock({label_x}, {label_y})")
+        problem.lua_script.append(f"T_avg_z{i} = ho_blockintegral(0)")
+        problem.lua_script.append("ho_clearblock()")
+        problem.lua_script.append(
+            f'write(file_out, "T_avg_zone_{i}_K = ", T_avg_z{i}, "\\n")'
+        )
+
+    problem.close()
+    return "\n".join(problem.lua_script)

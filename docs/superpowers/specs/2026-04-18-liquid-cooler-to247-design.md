@@ -64,7 +64,7 @@ examples/heatflow/liquid_cooler_to247/
 - Channel diameter: `d_t` centred vertically at `h_cp / 2`  
 - Pitch: `s_t` (one channel per pitch cell)  
 - Total cooler width: `b_cp = n_channels × s_t`, where `n_channels` covers all devices  
-- FEMM geometry: rectangular block with `CircleArc` cutouts (4 arcs per channel)
+- FEMM geometry: rectangular block with `CircleArc` cutouts (two 180° arcs per channel)
 
 **Rectangular channels:**  
 - Channel width: `ch_w`, height: `ch_h`, fin wall width: `fin_w`  

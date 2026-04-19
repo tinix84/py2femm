@@ -1,13 +1,6 @@
 """Unit tests for multi-zone heatsink model (no FEMM required)."""
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-_examples_dir = str(Path(__file__).resolve().parent.parent / "examples" / "heatflow" / "heatsink")
-if _examples_dir not in sys.path:
-    sys.path.insert(0, _examples_dir)
-
 import pytest
 from heatsink_multizone import Zone, Chip, MultiZoneConfig, validate_config
 
@@ -82,7 +75,7 @@ def test_chip_outside_base_rejected():
         validate_config(cfg)
 
 
-from heatsink_multizone import build_geometry
+from heatsink_multizone import build_geometry, build_model
 
 
 def _make_3zone_2chip_config() -> MultiZoneConfig:
@@ -138,3 +131,74 @@ def test_chip_at_zone_boundary_no_duplicate():
     geo, bottom_nodes, top_segments, internal_lines = build_geometry(cfg)
     bottom_xs = sorted(set(round(n.x, 6) for n in bottom_nodes))
     assert len(bottom_xs) == len(bottom_nodes), "Duplicate bottom nodes detected"
+
+
+def test_build_model_material_dedup():
+    """Two zones with same material name should produce only one hi_addmaterial call."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    # Aluminum appears in zone 0 and 1, Copper in zone 2 → 2 hi_addmaterial calls
+    assert lua.count("hi_addmaterial") == 2
+
+
+def test_build_model_block_labels_per_zone():
+    """Each zone gets its own hi_addblocklabel call."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert lua.count("hi_addblocklabel") == 3
+
+
+def test_build_model_per_zone_convection():
+    """Each zone's top segment gets a distinct convection BC."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    # 3 zones with different h values → 3 hi_addboundprop calls for convection
+    # Plus 2 heat flux BCs for chips → total 5 hi_addboundprop
+    assert lua.count("hi_addboundprop") == 5
+
+
+def test_build_model_chip_heat_flux():
+    """Each chip gets a heat flux BC."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert "Heat_ChipA" in lua
+    assert "Heat_ChipB" in lua
+
+
+def test_build_model_no_table_indexing():
+    """FEMM Lua 4.0: no table indexing [1] allowed."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert "[1]" not in lua
+
+
+def test_build_model_has_sentinel():
+    """Lua must contain PY2FEMM_DONE sentinel."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert "PY2FEMM_DONE" in lua
+
+
+def test_build_model_ends_with_quit():
+    """Lua must end with quit()."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    lines = lua.strip().splitlines()
+    assert lines[-1].strip() == "quit()"
+
+
+def test_build_model_writes_chip_temperatures():
+    """Lua must write T_ChipA_K and T_ChipB_K to file_out."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert "T_ChipA_K" in lua
+    assert "T_ChipB_K" in lua
+
+
+def test_build_model_writes_zone_temperatures():
+    """Lua must write per-zone average temperatures."""
+    cfg = _make_3zone_2chip_config()
+    lua = build_model(cfg)
+    assert "T_avg_zone_0_K" in lua
+    assert "T_avg_zone_1_K" in lua
+    assert "T_avg_zone_2_K" in lua

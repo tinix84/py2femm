@@ -14,7 +14,7 @@ SERVER_URL = os.environ.get("PYFEMM_AGENT_URL", "http://localhost:8082")
 
 def _server_available() -> bool:
     try:
-        r = httpx.get(f"{SERVER_URL}/health", timeout=2)
+        r = httpx.get(f"{SERVER_URL}/api/v1/health", timeout=2)
         return r.status_code == 200
     except Exception:
         return False
@@ -37,9 +37,9 @@ def test_waffler_single_device_circular():
     problem = build_circular(cfg)
 
     client = FemmClient()
-    result = client.run(problem)
+    result = client.run("\n".join(problem.lua_script))
     assert result.error is None, f"FEMM error: {result.error}"
-    assert result.csv_data is not None, f"No CSV output from FEMM; job_id={result.job_id}"
+    assert result.csv_data is not None, "No CSV output from FEMM"
 
     # Parse results
     lines = result.csv_data.strip().split("\n")
