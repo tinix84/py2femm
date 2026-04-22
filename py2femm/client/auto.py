@@ -14,7 +14,7 @@ _DEFAULT_LOCAL_WORKSPACE = Path("/mnt/c/femm_workspace")
 
 
 def _load_config_url() -> str | None:
-    """Try to read agent URL from ~/.py2femm/config.yml."""
+    """Try to read server URL from ~/.py2femm/config.yml."""
     config_path = Path.home() / ".py2femm" / "config.yml"
     if not config_path.exists():
         return None
@@ -83,8 +83,8 @@ class FemmClient(FemmClientBase):
             return
 
         raise ConnectionError(
-            "Could not detect py2femm agent. Setup instructions:\n"
-            "  Local (WSL):  Ensure /mnt/c/ is accessible and run start_femm_agent.bat on Windows\n"
+            "Could not detect py2femm server. Setup instructions:\n"
+            "  Local (WSL):  Ensure /mnt/c/ is accessible and run start_femm_server.bat on Windows\n"
             "  Remote:       Set PYFEMM_AGENT_URL=http://<host>:8082\n"
             "  Config:       Create ~/.py2femm/config.yml with agent.url"
         )
