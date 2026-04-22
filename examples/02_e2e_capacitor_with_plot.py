@@ -1,17 +1,17 @@
-"""End-to-end example: Define geometry -> Generate Lua -> Submit to agent -> Plot results.
+"""End-to-end example: Define geometry -> Generate Lua -> Submit to server -> Plot results.
 
 Demonstrates the full py2femm workflow:
 1. Build a planar capacitor geometry using py2femm Python API
 2. Generate a FEMM Lua script (FemmProblem)
-3. Submit the script to the py2femm agent via FemmClient
+3. Submit the script to the py2femm server via FemmClient
 4. Parse the CSV results into a DataFrame
 5. Plot the results with matplotlib
 
 Usage:
-    # With agent running on Windows:
+    # With server running on Windows:
     python examples/02_e2e_capacitor_with_plot.py
 
-    # Without agent (just generate Lua + show what would be submitted):
+    # Without server (just generate Lua + show what would be submitted):
     python examples/02_e2e_capacitor_with_plot.py --dry-run
 """
 
@@ -144,15 +144,15 @@ def get_lua_script(problem: FemmProblem) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Step 3 & 4: Submit to agent and parse results
+# Step 3 & 4: Submit to server and parse results
 # ---------------------------------------------------------------------------
 
 def submit_and_collect(lua_script: str) -> pd.DataFrame:
-    """Submit Lua script to py2femm agent, return results as DataFrame."""
+    """Submit Lua script to py2femm server, return results as DataFrame."""
     from py2femm.client import FemmClient
     from py2femm.client.models import JobResult
 
-    print("Connecting to py2femm agent...")
+    print("Connecting to py2femm server...")
     client = FemmClient()
     print(f"  Mode: {client._mode}")
 
@@ -235,7 +235,7 @@ def main():
         print("\n--dry-run: skipping submission. Review the generated Lua file.")
         return
 
-    # Submit to agent and get results
+    # Submit to server and get results
     df = submit_and_collect(lua_script)
     print(f"\nResults ({len(df)} rows):")
     print(df.to_string(index=False))

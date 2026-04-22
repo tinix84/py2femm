@@ -60,15 +60,20 @@ def build_circular(cfg: LiquidCoolerConfig) -> FemmProblem:
     problem.create_geometry(geo)
 
     # Materials
-    mat_al = HeatFlowMaterial(material_name="Aluminum", kx=160.0, ky=160.0, qv=0.0, kt=0.0)
-    mat_si = HeatFlowMaterial(material_name="Silicon",  kx=130.0, ky=130.0, qv=0.0, kt=0.0)
-    mat_cu = HeatFlowMaterial(material_name="Copper",   kx=385.0, ky=385.0, qv=0.0, kt=0.0)
-    for mat in (mat_al, mat_si, mat_cu):
+    mat_al     = HeatFlowMaterial(material_name="Aluminum", kx=160.0, ky=160.0, qv=0.0, kt=0.0)
+    mat_si     = HeatFlowMaterial(material_name="Silicon",  kx=130.0, ky=130.0, qv=0.0, kt=0.0)
+    mat_cu     = HeatFlowMaterial(material_name="Copper",   kx=385.0, ky=385.0, qv=0.0, kt=0.0)
+    mat_fluid  = HeatFlowMaterial(material_name="Coolant",  kx=0.6,   ky=0.6,   qv=0.0, kt=0.0)
+    for mat in (mat_al, mat_si, mat_cu, mat_fluid):
         problem.add_material(mat)
 
     # Al block label: halfway between bottom edge and channel base, clear of all channels
     al_label_y = (h_cp / 2 - r) * 0.5  # halfway between bottom and channel base
     problem.define_block_label(Node(cfg.s_t * 0.1, al_label_y), mat_al)
+
+    # Coolant label at the centre of each circular channel
+    for cx in channel_xs:
+        problem.define_block_label(Node(cx, cy_ch), mat_fluid)
 
     for i, dev in enumerate(cfg.devices):
         xl = i * cfg.device_pitch
@@ -134,4 +139,34 @@ def build_circular(cfg: LiquidCoolerConfig) -> FemmProblem:
     problem.lua_script.append("ho_clearblock()")
     problem.lua_script.append('write(file_out, "T_h_surface = ", T_h_surface, "\\n")')
 
+    # Temperature grid dump (bitmap requires visible window — grid works headless)
+    # Emits `T[i,j] = value` rows covering the full model extent.
+    y_top = h_cp + max(d.d_tim + d.h_cu + d.a_si for d in cfg.devices)
+    _emit_temperature_grid(problem, x_min=0.0, x_max=b_cp,
+                           y_min=0.0, y_max=y_top, nx=40, ny=20)
+
+    problem.close()
     return problem
+
+
+def _emit_temperature_grid(problem, *, x_min: float, x_max: float,
+                           y_min: float, y_max: float, nx: int, ny: int) -> None:
+    """Emit a Lua for-loop that samples T(x,y) on an nx×ny grid and writes CSV rows."""
+    dx = (x_max - x_min) / (nx - 1)
+    dy = (y_max - y_min) / (ny - 1)
+    problem.lua_script.append(
+        f'write(file_out, "GRID nx={nx} ny={ny} xmin={x_min} '
+        f'xmax={x_max} ymin={y_min} ymax={y_max}\\n")'
+    )
+    problem.lua_script.append(f"for j=0,{ny-1} do")
+    problem.lua_script.append(f"  for i=0,{nx-1} do")
+    problem.lua_script.append(f"    gx = {x_min} + i * {dx}")
+    problem.lua_script.append(f"    gy = {y_min} + j * {dy}")
+    problem.lua_script.append(f"    gT = ho_getpointvalues(gx, gy)")
+    # ho_getpointvalues returns nil outside the meshed region; skip those cells
+    # so write() doesn't fault. plotting.parse_temperature_grid fills gaps with NaN.
+    problem.lua_script.append(f"    if gT ~= nil then")
+    problem.lua_script.append(f'      write(file_out, "T[", i, ",", j, "] = ", gT, "\\n")')
+    problem.lua_script.append(f"    end")
+    problem.lua_script.append(f"  end")
+    problem.lua_script.append(f"end")

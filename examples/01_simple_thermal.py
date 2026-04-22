@@ -1,4 +1,4 @@
-"""Example: Submit a pre-built Lua script to py2femm agent.
+"""Example: Submit a pre-built Lua script to py2femm server.
 
 Usage:
     # From WSL with agent running on Windows:
@@ -66,14 +66,14 @@ closefile(outfile)
 
 
 def main():
-    print("Connecting to py2femm agent...")
+    print("Connecting to py2femm server...")
     try:
         client = FemmClient()
     except ConnectionError as e:
         print(f"Error: {e}")
-        print("\nMake sure the py2femm agent is running on Windows.")
+        print("\nMake sure the py2femm server is running on Windows.")
         print("  1. Run setup_femm.bat (one-time)")
-        print("  2. Run start_femm_agent.bat")
+        print("  2. Run start_femm_server.bat")
         return
 
     print(f"Agent mode: {client._mode}")

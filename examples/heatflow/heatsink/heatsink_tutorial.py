@@ -490,7 +490,7 @@ def main():
     avg_T, R_th = validate_results(results)
     print(f"\n  Average temperature:  {avg_T:.1f} K  ({avg_T - 273.15:.1f} \u00b0C)")
     print(f"  Thermal resistance:   {R_th:.2f} K/W")
-    print(f"  Expected:             ~356 K,  R_th ~ 5.8 K/W")
+    print(f"  Expected:             ~339 K,  R_th ~ 4.1 K/W  (full cross-section, h=10 W/m²K)")
 
     # 8. Plot results
     if do_plot:

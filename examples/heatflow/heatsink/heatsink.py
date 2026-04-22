@@ -190,7 +190,7 @@ def main():
     print(f"Lua script: {lua_file} ({len(problem.lua_script)} lines)")
 
     if args.run:
-        from py2femm_agent.executor import FemmExecutor
+        from py2femm_server.executor import FemmExecutor
 
         femm_path = Path("C:/femm42/bin/femm.exe")
         if not femm_path.exists():

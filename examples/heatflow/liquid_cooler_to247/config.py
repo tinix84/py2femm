@@ -89,8 +89,16 @@ def compute_h(
     return Nu * lam / dh
 
 
-def default_waffler_config(n_devices: int = 3, p_loss: float = 30.0) -> LiquidCoolerConfig:
-    """Config reproducing Waffler §4.4.2 geometry with n TO-247 devices."""
+def default_waffler_config(
+    n_devices: int = 3,
+    p_loss: float = 30.0,
+    device_spacing: float = 3.0,
+) -> LiquidCoolerConfig:
+    """Config reproducing Waffler §4.4.2 geometry with n TO-247 devices.
+
+    For single-device validation against Table 4.17 (dT_h-i ≈ 4.55 K), pass
+    device_spacing=9.0 to get a 24 mm wide cooler → 4 channels at 6 mm pitch.
+    """
     devices = [DeviceConfig(name=f"D{i}", p_loss=p_loss) for i in range(n_devices)]
     return LiquidCoolerConfig(
         devices=devices,
@@ -103,5 +111,5 @@ def default_waffler_config(n_devices: int = 3, p_loss: float = 30.0) -> LiquidCo
         t_inlet=363.15,
         m_dot=0.0028,
         l_cp=30.0,
-        device_spacing=3.0,
+        device_spacing=device_spacing,
     )
