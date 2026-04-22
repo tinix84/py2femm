@@ -28,8 +28,20 @@ write(f, "point,x,y,T\\n")
 **Fix**: Check the exact command signature in `docs/femm_lua_reference.md`.
 
 ### "function X not found"
-**Cause**: Wrong prefix for the current document type, or calling postprocessor commands before `mi_loadsolution()`.
+**Cause 1**: Wrong prefix for the current document type, or calling postprocessor commands before `mi_loadsolution()`.
 **Fix**: Verify prefix matches document type (mi/ei/hi/ci for preprocessor, mo/eo/ho/co for postprocessor).
+
+**Cause 2**: Extra underscore inside the function name. The FEMM 4.2 manual supports two naming conventions — `ho_savebitmap` (underscore after prefix only) and `hosavebitmap` (no separator) — but NEVER `ho_save_bitmap` (underscore inside the name). Grep for patterns like `_save_`, `_get_`, `_add_`, `_set_` in function names and collapse them.
+```lua
+-- WRONG — extra underscore inside name
+ho_save_bitmap("result.bmp")
+mo_get_point_values(x, y)
+
+-- CORRECT — underscore only after 2-letter prefix
+ho_savebitmap("result.bmp")
+mo_getpointvalues(x, y)
+```
+When in doubt, search `docs/femm_lua_reference.md` for the exact function name.
 
 ### FEMM hangs / doesn't exit
 **Cause**: Missing `quit()` at end of script, or running without `-windowhide` flag.

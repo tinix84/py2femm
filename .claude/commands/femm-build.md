@@ -28,7 +28,7 @@ from py2femm.femm_problem import FemmProblem
 from py2femm.geometry import Geometry, Node, Line, CircleArc
 from py2femm.magnetics import MagneticMaterial, MagneticDirichlet
 from py2femm.general import LengthUnit
-from py2femm_agent.executor import FemmExecutor
+from py2femm_server.executor import FemmExecutor
 ```
 
 **Option B: Raw FEMM Lua script**
@@ -87,13 +87,14 @@ Also read the existing py2femm source to match project patterns:
 - Extract: resistance, current density distribution
 
 ## Critical Rules
-1. **Always read the reference docs** before generating any FEMM commands
-2. **Use exact signatures** from the reference — parameter order matters
-3. **Block labels go INSIDE regions** — never on boundaries
-4. **Segment selection uses midpoints** — not node coordinates
-5. **End with `quit()`** for headless execution
-6. **Python string escaping**: use `\\n` for Lua newlines when generating from Python
-7. **Forward slashes** in all file paths for Lua compatibility
+1. **Always read `docs/femm_lua_reference.md`** before generating any Lua command — do not rely on memory
+2. **Verify exact function names**: The FEMM 4.2 manual uses two equivalent conventions: `ho_savebitmap` (underscore after prefix) and `hosavebitmap` (no separator). The underscore goes ONLY between the 2-letter prefix and the function name, never inside it. Wrong: `ho_save_bitmap` ✗, `mo_get_point_values` ✗. Correct: `ho_savebitmap` ✓, `mo_getpointvalues` ✓
+3. **Use exact signatures** from the reference — parameter order matters
+4. **Block labels go INSIDE regions** — never on boundaries
+5. **Segment selection uses midpoints** — not node coordinates
+6. **End with `quit()`** for headless execution
+7. **Python string escaping**: use `\\n` for Lua newlines when generating from Python
+8. **Forward slashes** in all file paths for Lua compatibility
 
 ## Instructions
 

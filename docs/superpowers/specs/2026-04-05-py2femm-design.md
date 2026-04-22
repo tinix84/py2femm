@@ -30,7 +30,7 @@ py2femm automates this entire pipeline with two bridge modes and adds caching, b
 +---------------------------+     +----------------------------+
 |  WSL / Linux / Mac        |     |  Windows (FEMM installed)  |
 |                           |     |                            |
-|  py2femm client           |     |  py2femm agent             |
+|  py2femm client           |     |  py2femm server             |
 |  - Lua generation         |     |  - FastAPI REST server     |
 |  - Cache (SHA256)         |     |  - Filesystem watcher      |
 |  - Orchestration          |     |  - FEMM subprocess exec    |
@@ -48,7 +48,7 @@ py2femm automates this entire pipeline with two bridge modes and adds caching, b
 py2femm/
 ├── pyproject.toml
 ├── setup_femm.bat              # One-time Windows setup
-├── start_femm_agent.bat        # Launch agent on Windows
+├── start_femm_server.bat        # Launch agent on Windows
 ├── py2femm/                    # Client library (runs anywhere)
 │   ├── __init__.py
 │   ├── core/                   # Lua generation engine
@@ -77,7 +77,7 @@ py2femm/
 │   └── config/                 # Hierarchical YAML config
 │       ├── schema.py           # Dataclass-based config model
 │       └── loader.py           # YAML discovery (cwd -> home -> package)
-├── py2femm_agent/              # Agent server (Windows only)
+├── py2femm_server/              # Agent server (Windows only)
 │   ├── __init__.py
 │   ├── server.py               # FastAPI REST endpoints
 │   ├── executor.py             # FEMM subprocess launcher
@@ -116,7 +116,7 @@ WSL                              Windows
 - Default workspace: `/mnt/c/femm_workspace/`
 - Atomic writes: `.tmp` then rename to `.lua`
 - Client polls for result with configurable timeout (default 300s)
-- Agent runs as `python -m py2femm_agent watch` or via `start_femm_agent.bat`
+- Agent runs as `python -m py2femm_server watch` or via `start_femm_server.bat`
 
 ### Bridge Mode 2: REST API (remote/VM)
 
@@ -179,13 +179,13 @@ client = FemmClient()  # auto-detects mode
 5. Configure shared workspace directory (default `C:\femm_workspace\`)
 6. Save settings to `config/default.yml`
 
-### start_femm_agent.bat (launcher)
+### start_femm_server.bat (launcher)
 
 1. Read env config from `config/default.yml`
 2. Bootstrap conda if needed
 3. Activate environment
 4. Read FEMM path from config
-5. Start: `python -m py2femm_agent serve --host 0.0.0.0 --port 8082`
+5. Start: `python -m py2femm_server serve --host 0.0.0.0 --port 8082`
 6. Agent serves both REST API and shared-filesystem watcher
 
 ## Python API
@@ -255,8 +255,8 @@ py2femm status                    # Agent status, queue depth
 py2femm config                    # Show/edit configuration
 py2femm cache stats               # Cache hit rate, disk usage
 py2femm cache clear               # Clear cache
-py2femm agent serve               # Start REST agent (Windows)
-py2femm agent watch               # Start filesystem watcher (Windows)
+py2femm server serve               # Start REST agent (Windows)
+py2femm server watch               # Start filesystem watcher (Windows)
 ```
 
 ### Integration with Octave thermal_cli
@@ -290,7 +290,7 @@ class FemmExecutor:
 Agent injects output path into every Lua script:
 
 ```lua
--- Injected by py2femm agent
+-- Injected by py2femm server
 py2femm_workdir = "C:\\femm_workspace\\jobs\\abc123\\"
 py2femm_outfile = py2femm_workdir .. "results.csv"
 ```

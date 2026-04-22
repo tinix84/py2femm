@@ -66,7 +66,7 @@ FEMM uses Lua 4.0. There is no table indexing on multi-return values. Do NOT wri
 The FEMM 4.2 Lua reference uses `ho_savebitmap(filename)`, not `ho_save_bitmap`. Similarly for other `ho_*` functions. Check the FEMM 4.2 manual before adding new Lua commands.
 
 ### Bottom segments default to insulated
-In FEMM, segments with no assigned BC default to zero flux (insulated). Bottom segments at y=0 should NOT have convection assigned unless the physical setup requires it. This was a past bug that caused T_avg to read ~334K instead of ~356K.
+In FEMM, segments with no assigned BC default to zero flux (insulated). Bottom segments at y=0 should NOT have convection assigned unless the physical setup requires it. This was a past bug that caused T_avg to read ~334K instead of ~339K (verified against analytical energy balance: h×A×ΔT ≈ 10W).
 
 ### Node deduplication
 When building polygon outlines programmatically (e.g., fin zigzag patterns), consecutive duplicate nodes can occur. Deduplicate with a 1e-6 tolerance before creating `Line` segments, or FEMM will reject the geometry.

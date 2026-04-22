@@ -4,7 +4,7 @@
 
 **Goal:** Fork py2femm, restructure into client/agent architecture, add REST API and shared-filesystem bridge so FEMM simulations can be submitted from WSL/Linux and executed on Windows.
 
-**Architecture:** Monorepo with two components: `py2femm/` (client library, runs anywhere) and `py2femm_agent/` (FastAPI server + filesystem watcher, runs on Windows where FEMM is installed). Communication via shared filesystem (`/mnt/c/`) or REST API (HTTP).
+**Architecture:** Monorepo with two components: `py2femm/` (client library, runs anywhere) and `py2femm_server/` (FastAPI server + filesystem watcher, runs on Windows where FEMM is installed). Communication via shared filesystem (`/mnt/c/`) or REST API (HTTP).
 
 **Tech Stack:** Python 3.10+, FastAPI, uvicorn, pydantic, click, pyyaml, pandas
 
@@ -26,7 +26,7 @@
 | `py2femm/client/remote.py` | `RemoteClient` — REST API client via `httpx` |
 | `py2femm/client/auto.py` | `FemmClient` — auto-detect local vs remote |
 | `py2femm/client/models.py` | `JobRequest`, `JobStatus`, `JobResult`, `ExecutionResult` pydantic models |
-| `py2femm/cli.py` | Click CLI: `py2femm run`, `py2femm status`, `py2femm agent` |
+| `py2femm/cli.py` | Click CLI: `py2femm run`, `py2femm status`, `py2femm server` |
 | `py2femm/config/schema.py` | `Py2FemmConfig` dataclass |
 | `py2femm/config/loader.py` | `load_config()` — hierarchical YAML discovery |
 | `py2femm/config/defaults.yml` | Default config values |
@@ -35,13 +35,13 @@
 
 | File | Responsibility |
 |------|---------------|
-| `py2femm_agent/__init__.py` | Package init |
-| `py2femm_agent/__main__.py` | `python -m py2femm_agent` entry point |
-| `py2femm_agent/server.py` | FastAPI app with `/api/v1/jobs` and `/api/v1/health` |
-| `py2femm_agent/executor.py` | `FemmExecutor` — subprocess FEMM launch, preamble injection, CSV extraction |
-| `py2femm_agent/watcher.py` | `FileWatcher` — poll directory for `.lua` files, trigger executor |
-| `py2femm_agent/health.py` | `check_femm()` — detect FEMM path, version |
-| `py2femm_agent/job_store.py` | In-memory job state store (pending/running/completed/failed) |
+| `py2femm_server/__init__.py` | Package init |
+| `py2femm_server/__main__.py` | `python -m py2femm_server` entry point |
+| `py2femm_server/server.py` | FastAPI app with `/api/v1/jobs` and `/api/v1/health` |
+| `py2femm_server/executor.py` | `FemmExecutor` — subprocess FEMM launch, preamble injection, CSV extraction |
+| `py2femm_server/watcher.py` | `FileWatcher` — poll directory for `.lua` files, trigger executor |
+| `py2femm_server/health.py` | `check_femm()` — detect FEMM path, version |
+| `py2femm_server/job_store.py` | In-memory job state store (pending/running/completed/failed) |
 
 ### New files (project root)
 
@@ -49,7 +49,7 @@
 |------|---------------|
 | `pyproject.toml` | Replace upstream Poetry config with setuptools + extras |
 | `setup_femm.bat` | One-time Windows setup (Python env + FEMM detection) |
-| `start_femm_agent.bat` | Launch agent on Windows |
+| `start_femm_server.bat` | Launch agent on Windows |
 | `config/default.yml` | Agent-side YAML config (FEMM path, workspace) |
 
 ### Existing files to keep (from upstream py2femm)
@@ -59,7 +59,7 @@
 | `py2femm/femm_problem.py` | Keep as-is for now (refactor to `core/` in Phase 2) |
 | `py2femm/geometry.py` | Keep as-is |
 | `py2femm/heatflow.py` | Keep as-is |
-| `py2femm/executor.py` | Keep as reference, superseded by `py2femm_agent/executor.py` |
+| `py2femm/executor.py` | Keep as reference, superseded by `py2femm_server/executor.py` |
 | `py2femm/general.py` | Keep as-is |
 | `tests/` | Keep existing tests |
 
@@ -142,7 +142,7 @@ all = ["py2femm[agent,dev]"]
 py2femm = "py2femm.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["py2femm*", "py2femm_agent*"]
+include = ["py2femm*", "py2femm_server*"]
 
 [tool.ruff]
 target-version = "py310"
@@ -176,9 +176,9 @@ config/default.yml
 - [ ] **Step 4: Create package directories**
 
 ```bash
-mkdir -p py2femm/client py2femm/config py2femm_agent tests examples config
+mkdir -p py2femm/client py2femm/config py2femm_server tests examples config
 touch py2femm/client/__init__.py py2femm/config/__init__.py
-touch py2femm_agent/__init__.py
+touch py2femm_server/__init__.py
 ```
 
 - [ ] **Step 5: Install in editable mode and verify**
@@ -201,11 +201,11 @@ Expect: existing py2femm tests should still pass (geometry, materials, etc.).
 - [ ] **Step 7: Commit**
 
 ```bash
-git add pyproject.toml .gitignore py2femm/client/__init__.py py2femm/config/__init__.py py2femm_agent/__init__.py
+git add pyproject.toml .gitignore py2femm/client/__init__.py py2femm/config/__init__.py py2femm_server/__init__.py
 git commit -m "feat: restructure project for client/agent architecture
 
 Replace Poetry with setuptools, add extras (agent, dev), create
-client/, config/, and py2femm_agent/ package directories."
+client/, config/, and py2femm_server/ package directories."
 ```
 
 ---
@@ -381,7 +381,7 @@ elapsed time calculation and JSON serialization."
 ## Task 2: FEMM Health Check
 
 **Files:**
-- Create: `py2femm_agent/health.py`
+- Create: `py2femm_server/health.py`
 - Test: `tests/test_health.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -393,7 +393,7 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
-from py2femm_agent.health import find_femm, check_femm_health
+from py2femm_server.health import find_femm, check_femm_health
 
 
 def test_find_femm_from_env_var(tmp_path):
@@ -406,7 +406,7 @@ def test_find_femm_from_env_var(tmp_path):
 
 def test_find_femm_returns_none_when_not_found():
     with patch.dict(os.environ, {}, clear=True):
-        with patch("py2femm_agent.health._FEMM_SEARCH_PATHS", []):
+        with patch("py2femm_server.health._FEMM_SEARCH_PATHS", []):
             result = find_femm()
     assert result is None
 
@@ -417,7 +417,7 @@ def test_find_femm_scans_common_paths(tmp_path):
     femm_exe = femm_dir / "femm.exe"
     femm_exe.touch()
     with patch.dict(os.environ, {}, clear=True):
-        with patch("py2femm_agent.health._FEMM_SEARCH_PATHS", [femm_exe]):
+        with patch("py2femm_server.health._FEMM_SEARCH_PATHS", [femm_exe]):
             result = find_femm()
     assert result == femm_exe
 
@@ -425,14 +425,14 @@ def test_find_femm_scans_common_paths(tmp_path):
 def test_check_femm_health_ok(tmp_path):
     femm_exe = tmp_path / "femm.exe"
     femm_exe.touch()
-    with patch("py2femm_agent.health.find_femm", return_value=femm_exe):
+    with patch("py2femm_server.health.find_femm", return_value=femm_exe):
         health = check_femm_health()
     assert health["status"] == "ok"
     assert health["femm_path"] == str(femm_exe)
 
 
 def test_check_femm_health_not_found():
-    with patch("py2femm_agent.health.find_femm", return_value=None):
+    with patch("py2femm_server.health.find_femm", return_value=None):
         health = check_femm_health()
     assert health["status"] == "error"
     assert "not found" in health["message"]
@@ -444,11 +444,11 @@ def test_check_femm_health_not_found():
 pytest tests/test_health.py -v
 ```
 
-Expected: `ModuleNotFoundError: No module named 'py2femm_agent.health'`
+Expected: `ModuleNotFoundError: No module named 'py2femm_server.health'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `py2femm_agent/health.py`:
+Create `py2femm_server/health.py`:
 
 ```python
 """FEMM installation detection and health check."""
@@ -505,7 +505,7 @@ Expected: All 5 tests PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add py2femm_agent/health.py tests/test_health.py
+git add py2femm_server/health.py tests/test_health.py
 git commit -m "feat: add FEMM health check and path detection
 
 Scans FEMM_PATH env var and common Windows install locations.
@@ -517,7 +517,7 @@ Returns structured health dict for agent startup validation."
 ## Task 3: FEMM Executor
 
 **Files:**
-- Create: `py2femm_agent/executor.py`
+- Create: `py2femm_server/executor.py`
 - Test: `tests/test_executor.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -527,7 +527,7 @@ Create `tests/test_executor.py`:
 ```python
 from pathlib import Path
 
-from py2femm_agent.executor import FemmExecutor, inject_preamble
+from py2femm_server.executor import FemmExecutor, inject_preamble
 
 
 def test_inject_preamble():
@@ -608,11 +608,11 @@ def test_executor_read_result_missing_file(tmp_path):
 pytest tests/test_executor.py -v
 ```
 
-Expected: `ModuleNotFoundError: No module named 'py2femm_agent.executor'`
+Expected: `ModuleNotFoundError: No module named 'py2femm_server.executor'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `py2femm_agent/executor.py`:
+Create `py2femm_server/executor.py`:
 
 ```python
 """FEMM subprocess executor with Lua preamble injection."""
@@ -635,7 +635,7 @@ def inject_preamble(lua_script: str, workdir: Path) -> str:
     # Use forward slashes for Lua compatibility
     workdir_lua = str(workdir).replace("\\", "/")
     preamble = (
-        "-- Injected by py2femm agent\n"
+        "-- Injected by py2femm server\n"
         f'py2femm_workdir = "{workdir_lua}/"\n'
         f'py2femm_outfile = py2femm_workdir .. "results.csv"\n'
         "\n"
@@ -695,7 +695,7 @@ Expected: All 8 tests PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add py2femm_agent/executor.py tests/test_executor.py
+git add py2femm_server/executor.py tests/test_executor.py
 git commit -m "feat: add FEMM subprocess executor with Lua preamble injection
 
 Prepares job directories, injects py2femm_outfile variable into Lua
@@ -707,7 +707,7 @@ scripts, runs FEMM via subprocess, reads CSV results."
 ## Task 4: Job Store
 
 **Files:**
-- Create: `py2femm_agent/job_store.py`
+- Create: `py2femm_server/job_store.py`
 - Test: `tests/test_job_store.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -717,7 +717,7 @@ Create `tests/test_job_store.py`:
 ```python
 from datetime import datetime, timezone
 
-from py2femm_agent.job_store import JobStore
+from py2femm_server.job_store import JobStore
 
 
 def test_create_job():
@@ -792,14 +792,14 @@ def test_list_jobs_by_status():
 pytest tests/test_job_store.py -v
 ```
 
-Expected: `ModuleNotFoundError: No module named 'py2femm_agent.job_store'`
+Expected: `ModuleNotFoundError: No module named 'py2femm_server.job_store'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `py2femm_agent/job_store.py`:
+Create `py2femm_server/job_store.py`:
 
 ```python
-"""In-memory job state store for the py2femm agent."""
+"""In-memory job state store for the py2femm server."""
 
 from __future__ import annotations
 
@@ -871,7 +871,7 @@ Expected: All 8 tests PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add py2femm_agent/job_store.py tests/test_job_store.py
+git add py2femm_server/job_store.py tests/test_job_store.py
 git commit -m "feat: add in-memory job store for agent state management
 
 Tracks job lifecycle (queued -> running -> completed/failed) with
@@ -883,8 +883,8 @@ timestamps, Lua scripts, CSV results, and error messages."
 ## Task 5: FastAPI Agent Server
 
 **Files:**
-- Create: `py2femm_agent/server.py`
-- Create: `py2femm_agent/__main__.py`
+- Create: `py2femm_server/server.py`
+- Create: `py2femm_server/__main__.py`
 - Test: `tests/test_server.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -896,7 +896,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
-from py2femm_agent.server import create_app
+from py2femm_server.server import create_app
 
 
 @pytest.fixture
@@ -964,14 +964,14 @@ def test_submit_batch(client):
 pytest tests/test_server.py -v
 ```
 
-Expected: `ModuleNotFoundError: No module named 'py2femm_agent.server'`
+Expected: `ModuleNotFoundError: No module named 'py2femm_server.server'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `py2femm_agent/server.py`:
+Create `py2femm_server/server.py`:
 
 ```python
-"""FastAPI REST server for the py2femm agent."""
+"""FastAPI REST server for the py2femm server."""
 
 from __future__ import annotations
 
@@ -981,8 +981,8 @@ from threading import Thread
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from py2femm_agent.executor import FemmExecutor
-from py2femm_agent.job_store import JobStore
+from py2femm_server.executor import FemmExecutor
+from py2femm_server.job_store import JobStore
 
 
 class SubmitRequest(BaseModel):
@@ -997,7 +997,7 @@ class BatchSubmitRequest(BaseModel):
 
 def create_app(femm_path: Path, workspace: Path) -> FastAPI:
     """Create FastAPI app with configured executor and store."""
-    app = FastAPI(title="py2femm Agent", version="0.2.0")
+    app = FastAPI(title="py2femm Server", version="0.2.0")
     executor = FemmExecutor(femm_path=femm_path, workspace=workspace)
     store = JobStore()
 
@@ -1071,10 +1071,10 @@ def create_app(femm_path: Path, workspace: Path) -> FastAPI:
 
 - [ ] **Step 4: Create `__main__.py` entry point**
 
-Create `py2femm_agent/__main__.py`:
+Create `py2femm_server/__main__.py`:
 
 ```python
-"""Entry point for `python -m py2femm_agent`."""
+"""Entry point for `python -m py2femm_server`."""
 
 import sys
 from pathlib import Path
@@ -1082,8 +1082,8 @@ from pathlib import Path
 import click
 import uvicorn
 
-from py2femm_agent.health import find_femm
-from py2femm_agent.server import create_app
+from py2femm_server.health import find_femm
+from py2femm_server.server import create_app
 
 
 @click.command()
@@ -1092,7 +1092,7 @@ from py2femm_agent.server import create_app
 @click.option("--femm-path", default=None, help="Path to femm.exe")
 @click.option("--workspace", default=None, help="Job workspace directory")
 def serve(host: str, port: int, femm_path: str | None, workspace: str | None):
-    """Start the py2femm agent REST server."""
+    """Start the py2femm server REST server."""
     if femm_path:
         femm = Path(femm_path)
     else:
@@ -1104,7 +1104,7 @@ def serve(host: str, port: int, femm_path: str | None, workspace: str | None):
     ws = Path(workspace) if workspace else Path("C:/femm_workspace")
     click.echo(f"FEMM path: {femm}")
     click.echo(f"Workspace: {ws}")
-    click.echo(f"Starting py2femm agent on {host}:{port}")
+    click.echo(f"Starting py2femm server on {host}:{port}")
 
     app = create_app(femm_path=femm, workspace=ws)
     uvicorn.run(app, host=host, port=port)
@@ -1125,11 +1125,11 @@ Expected: All 6 tests PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add py2femm_agent/server.py py2femm_agent/__main__.py tests/test_server.py
+git add py2femm_server/server.py py2femm_server/__main__.py tests/test_server.py
 git commit -m "feat: add FastAPI agent server with REST endpoints
 
 POST/GET/DELETE /api/v1/jobs, batch submit, health check.
-Background thread execution. Entry point via python -m py2femm_agent."
+Background thread execution. Entry point via python -m py2femm_server."
 ```
 
 ---
@@ -1137,7 +1137,7 @@ Background thread execution. Entry point via python -m py2femm_agent."
 ## Task 6: Filesystem Watcher
 
 **Files:**
-- Create: `py2femm_agent/watcher.py`
+- Create: `py2femm_server/watcher.py`
 - Test: `tests/test_watcher.py`
 
 - [ ] **Step 1: Write the failing test**
@@ -1149,7 +1149,7 @@ import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from py2femm_agent.watcher import FileWatcher
+from py2femm_server.watcher import FileWatcher
 
 
 def test_watcher_detects_new_lua_file(tmp_path):
@@ -1220,11 +1220,11 @@ def test_watcher_creates_watch_dir_if_missing(tmp_path):
 pytest tests/test_watcher.py -v
 ```
 
-Expected: `ModuleNotFoundError: No module named 'py2femm_agent.watcher'`
+Expected: `ModuleNotFoundError: No module named 'py2femm_server.watcher'`
 
 - [ ] **Step 3: Write the implementation**
 
-Create `py2femm_agent/watcher.py`:
+Create `py2femm_server/watcher.py`:
 
 ```python
 """Filesystem watcher for shared-filesystem bridge mode."""
@@ -1276,7 +1276,7 @@ Expected: All 5 tests PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add py2femm_agent/watcher.py tests/test_watcher.py
+git add py2femm_server/watcher.py tests/test_watcher.py
 git commit -m "feat: add filesystem watcher for shared-fs bridge mode
 
 Polls directory for new .lua files, triggers callback, tracks
@@ -1604,7 +1604,7 @@ Expected: `ModuleNotFoundError: No module named 'py2femm.client.remote'`
 Create `py2femm/client/remote.py`:
 
 ```python
-"""REST API client for remote py2femm agent."""
+"""REST API client for remote py2femm server."""
 
 from __future__ import annotations
 
@@ -1616,7 +1616,7 @@ from py2femm.client.base import ClientResult, FemmClientBase
 
 
 class RemoteClient(FemmClientBase):
-    """Client that communicates with py2femm agent via REST API."""
+    """Client that communicates with py2femm server via REST API."""
 
     def __init__(
         self,
@@ -1839,8 +1839,8 @@ class FemmClient(FemmClientBase):
             return
 
         raise ConnectionError(
-            "Could not detect py2femm agent. Setup instructions:\n"
-            "  Local (WSL):  Ensure /mnt/c/ is accessible and run start_femm_agent.bat on Windows\n"
+            "Could not detect py2femm server. Setup instructions:\n"
+            "  Local (WSL):  Ensure /mnt/c/ is accessible and run start_femm_server.bat on Windows\n"
             "  Remote:       Set PYFEMM_AGENT_URL=http://<host>:8082\n"
             "  Config:       Create ~/.py2femm/config.yml with agent.url"
         )
@@ -2302,7 +2302,7 @@ def run(lua_file: str, output: str | None, timeout: int, mode: str, url: str | N
 @click.option("--mode", type=click.Choice(["auto", "local", "remote"]), default="auto")
 @click.option("--url", default=None, help="Agent URL for remote mode")
 def status(mode: str, url: str | None):
-    """Check py2femm agent status."""
+    """Check py2femm server status."""
     kwargs = {}
     if mode != "auto":
         kwargs["mode"] = mode
@@ -2379,7 +2379,7 @@ py2femm status checks agent connectivity."
 
 **Files:**
 - Create: `setup_femm.bat`
-- Create: `start_femm_agent.bat`
+- Create: `start_femm_server.bat`
 - Create: `config/defaults.yml`
 - Create: `tools/configure_femm.py`
 
@@ -2466,7 +2466,7 @@ REM    3. Activate env + install dependencies
 REM    4. Configure FEMM path and workspace
 REM
 REM  Settings saved to config/default.yml.
-REM  Run this ONCE before using start_femm_agent.bat.
+REM  Run this ONCE before using start_femm_server.bat.
 REM ──────────────────────────────────────────────────────────
 
 setlocal enabledelayedexpansion
@@ -2474,7 +2474,7 @@ cd /d "%~dp0"
 
 echo.
 echo ============================================================
-echo   py2femm Agent Setup
+echo   py2femm Server Setup
 echo ============================================================
 
 REM ══════════════════════════════════════════════════════════
@@ -2614,20 +2614,20 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo   Setup complete! Run start_femm_agent.bat to launch.
+echo   Setup complete! Run start_femm_server.bat to launch.
 echo ============================================================
 echo.
 pause
 ```
 
-- [ ] **Step 3: Create `start_femm_agent.bat`**
+- [ ] **Step 3: Create `start_femm_server.bat`**
 
-Create `start_femm_agent.bat`:
+Create `start_femm_server.bat`:
 
 ```batch
 @echo off
 REM ──────────────────────────────────────────────────────────
-REM  Start py2femm Agent (REST API + Filesystem Watcher)
+REM  Start py2femm Server (REST API + Filesystem Watcher)
 REM
 REM  Reads config from config/default.yml (set by setup_femm.bat).
 REM  Run setup_femm.bat first.
@@ -2689,15 +2689,15 @@ if "%ENV_TYPE%"=="conda" (
     call .venv\Scripts\activate.bat
 )
 
-REM ── Launch py2femm agent ─────────────────────────────────
+REM ── Launch py2femm server ─────────────────────────────────
 echo.
-echo Starting py2femm agent on 0.0.0.0:8082...
+echo Starting py2femm server on 0.0.0.0:8082...
 echo (Press Ctrl+C to stop)
 echo.
-python -m py2femm_agent --host 0.0.0.0 --port 8082
+python -m py2femm_server --host 0.0.0.0 --port 8082
 
 echo.
-echo py2femm agent stopped. Press any key to exit.
+echo py2femm server stopped. Press any key to exit.
 pause
 ```
 
@@ -2706,7 +2706,7 @@ pause
 Create `config/defaults.yml`:
 
 ```yaml
-# py2femm agent defaults (Windows side)
+# py2femm server defaults (Windows side)
 # Overwritten by setup_femm.bat
 
 femm:
@@ -2723,11 +2723,11 @@ agent:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add setup_femm.bat start_femm_agent.bat tools/configure_femm.py config/defaults.yml
+git add setup_femm.bat start_femm_server.bat tools/configure_femm.py config/defaults.yml
 git commit -m "feat: add Windows batch files for agent setup and launch
 
 setup_femm.bat: one-time env + FEMM detection + dependency install.
-start_femm_agent.bat: activate env + launch REST agent on port 8082.
+start_femm_server.bat: activate env + launch REST agent on port 8082.
 Mirrors pyplecs setup_env.bat / start_plecs.bat pattern."
 ```
 
@@ -2828,7 +2828,7 @@ Expected: All 2 tests PASS.
 Create `examples/01_simple_thermal.py`:
 
 ```python
-"""Example: Submit a pre-built Lua script to py2femm agent.
+"""Example: Submit a pre-built Lua script to py2femm server.
 
 Usage:
     # From WSL with agent running on Windows:
@@ -2896,14 +2896,14 @@ closefile(outfile)
 
 
 def main():
-    print("Connecting to py2femm agent...")
+    print("Connecting to py2femm server...")
     try:
         client = FemmClient()
     except ConnectionError as e:
         print(f"Error: {e}")
-        print("\nMake sure the py2femm agent is running on Windows.")
+        print("\nMake sure the py2femm server is running on Windows.")
         print("  1. Run setup_femm.bat (one-time)")
-        print("  2. Run start_femm_agent.bat")
+        print("  2. Run start_femm_server.bat")
         return
 
     print(f"Agent mode: {client._mode}")
@@ -2972,7 +2972,7 @@ pip install py2femm
 
 ```
 setup_femm.bat          # One-time: detect Python, FEMM, create env
-start_femm_agent.bat    # Launch REST API on port 8082
+start_femm_server.bat    # Launch REST API on port 8082
 ```
 
 ### 3. Run Simulations
@@ -3000,7 +3000,7 @@ print(result.csv_data)
 ```
 WSL / Linux / Mac              Windows
 ┌────────────────┐             ┌──────────────────┐
-│  py2femm       │  REST API   │  py2femm agent   │
+│  py2femm       │  REST API   │  py2femm server   │
 │  client + CLI  │────────────>│  FastAPI server   │
 │                │  or shared  │  FEMM executor    │
 │                │  filesystem │  File watcher     │

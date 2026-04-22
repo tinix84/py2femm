@@ -25,7 +25,7 @@ This project wraps FEMM's Lua API in Python. Key modules:
 - `py2femm/heatflow.py` — `HeatFlowMaterial`, thermal boundary classes
 - `py2femm/current_flow.py` — `CurrentFlowMaterial`, current flow boundary classes
 - `py2femm/general.py` — `FemmFields` enum, `LengthUnit`, base `Material`/`Boundary` ABCs
-- `py2femm_agent/executor.py` — `FemmExecutor` runs FEMM subprocess
+- `py2femm_server/executor.py` — `FemmExecutor` runs FEMM subprocess
 - `py2femm/client/` — `FemmClient` for submitting jobs via REST or shared filesystem
 
 ### FEMM Lua API Quick Reference
@@ -92,15 +92,20 @@ mo_close()                         -- close postprocessor
 8. **`mi_analyze()`** will fail silently if geometry has open regions or overlapping segments
 9. **`mi_loadsolution()`** must be called AFTER `mi_analyze()` before any postprocessor commands
 10. **Unit consistency** — all dimensions must match `probdef` units. If probdef says "meters", everything is in meters
+11. **Lua API naming — VERIFY before writing any command**: The FEMM 4.2 manual defines two equivalent naming conventions:
+    - With underscore separator: `ho_savebitmap`, `mo_getpointvalues`, `hi_addnode`
+    - Without separator: `hosavebitmap`, `mogetpointvalues`, `hiaddnode`
+    The underscore goes ONLY between the two-letter prefix and the function name — **never inside** the function name itself. Wrong: `ho_save_bitmap` ✗, `mo_get_point_values` ✗, `hi_add_node` ✗. Do not guess names from memory. Search `docs/femm_lua_reference.md` for the exact spelling before writing any postprocessor call.
 
 ### Workflow
 When helping with FEMM, always follow this pattern:
-1. Read the relevant reference docs for exact command signatures
+1. **Search `docs/femm_lua_reference.md`** for the exact function signature of every Lua command you plan to emit — especially postprocessor commands (`ho_*`, `mo_*`, `eo_*`, `co_*`)
 2. Read existing py2femm source code to match the project's patterns
 3. Verify geometry is closed (all regions bounded by segments/arcs)
 4. Ensure all block labels are inside regions
 5. Ensure boundary conditions are properly assigned
 6. Always end scripts with `quit()` for headless execution
+7. **Final check**: grep the generated Lua for any `_` characters in the middle of function names (e.g., `save_bitmap`, `get_point_values`) — those are wrong; the underscore belongs only after the prefix
 
 ## Instructions
 
