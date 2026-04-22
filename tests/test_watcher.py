@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from py2femm_agent.watcher import FileWatcher
+from py2femm_server.watcher import FileWatcher
 
 
 def test_watcher_detects_new_lua_file(tmp_path):

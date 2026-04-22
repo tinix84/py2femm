@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from py2femm_agent.job_store import JobStore
+from py2femm_server.job_store import JobStore
 
 
 def test_create_job():

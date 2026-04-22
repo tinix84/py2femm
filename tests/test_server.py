@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
-from py2femm_agent.server import create_app
+from py2femm_server.server import create_app
 
 
 @pytest.fixture

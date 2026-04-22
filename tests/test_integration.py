@@ -1,7 +1,7 @@
 """Integration test: full round-trip without real FEMM.
 
-Simulates the agent-side by watching for .lua files and writing
-fake .csv results. Tests the client -> filesystem -> agent -> result
+Simulates the server-side by watching for .lua files and writing
+fake .csv results. Tests the client -> filesystem -> server -> result
 pipeline end-to-end.
 """
 
@@ -12,7 +12,7 @@ from threading import Thread
 from py2femm.client.local import LocalClient
 
 
-def _fake_femm_agent(workspace: Path, stop_after: int = 1):
+def _fake_femm_server(workspace: Path, stop_after: int = 1):
     """Watch for .lua files and write fake CSV results."""
     processed = 0
     for _ in range(50):  # max 5 seconds
@@ -36,8 +36,8 @@ def test_full_roundtrip(tmp_path):
     workspace.mkdir()
 
     # Start fake agent in background
-    agent_thread = Thread(target=_fake_femm_agent, args=(workspace,), daemon=True)
-    agent_thread.start()
+    server_thread = Thread(target=_fake_femm_server, args=(workspace,), daemon=True)
+    server_thread.start()
 
     # Run client
     client = LocalClient(workspace=workspace, poll_interval=0.1, timeout=10)
@@ -54,8 +54,8 @@ def test_full_roundtrip_csv_to_dataframe(tmp_path):
     workspace = tmp_path / "femm_workspace"
     workspace.mkdir()
 
-    agent_thread = Thread(target=_fake_femm_agent, args=(workspace,), daemon=True)
-    agent_thread.start()
+    server_thread = Thread(target=_fake_femm_server, args=(workspace,), daemon=True)
+    server_thread.start()
 
     client = LocalClient(workspace=workspace, poll_interval=0.1, timeout=10)
     result = client.run("hi_analyze()")
