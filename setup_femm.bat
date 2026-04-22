@@ -9,7 +9,7 @@ REM    3. Activate env + install dependencies
 REM    4. Configure FEMM path and workspace
 REM
 REM  Settings saved to config/default.yml.
-REM  Run this ONCE before using start_femm_agent.bat.
+REM  Run this ONCE before using start_femm_server.bat.
 REM ----------------------------------------------------------
 
 setlocal enabledelayedexpansion
@@ -17,7 +17,7 @@ cd /d "%~dp0"
 
 echo.
 echo ============================================================
-echo   py2femm Agent Setup
+echo   py2femm Server Setup
 echo ============================================================
 
 REM Step 1: Scan for Python and conda
@@ -131,7 +131,7 @@ if "%ENV_TYPE%"=="conda" (
 
 python -m pip install --quiet --upgrade pip
 python -m pip install --quiet -e ".[agent]"
-echo       [OK] py2femm[agent] installed.
+echo       [OK] py2femm[server] installed.
 
 REM Step 4: Configure FEMM
 echo.
@@ -148,7 +148,7 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo   Setup complete! Run start_femm_agent.bat to launch.
+echo   Setup complete! Run start_femm_server.bat to launch.
 echo ============================================================
 echo.
 pause
