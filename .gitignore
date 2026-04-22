@@ -224,3 +224,11 @@ config/default.yml
 point_values.csv
 elements.csv
 node.csv
+
+# IDE / scratch / local-only caches
+.superpowers/
+.virtual_documents/
+anaconda_projects/
+_test_*.py
+_debug_*.lua
+_debug_*.py
